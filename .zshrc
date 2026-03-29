@@ -1,6 +1,6 @@
 # Auto-start tmux (must be before p10k instant prompt to avoid warnings)
 if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [[ -o interactive ]]; then
-  tmux new-session
+  tmux attach-session || tmux new-session
 fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
