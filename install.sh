@@ -5,21 +5,6 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "==> Installing dotfiles from $DOTFILES_DIR"
 
-# --- Homebrew ---
-if ! command -v brew &>/dev/null; then
-  echo "==> Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  # Apple Silicon
-  if [[ -f /opt/homebrew/bin/brew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  fi
-fi
-
-echo "==> Installing Homebrew packages..."
-if ! brew bundle --file="$DOTFILES_DIR/Brewfile" 2>&1; then
-  echo "  (some packages failed to install, see errors above)"
-fi
-
 # --- Oh My Zsh ---
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   echo "==> Installing Oh My Zsh..."
@@ -60,7 +45,7 @@ link_file() {
     echo "  Backing up $dst -> ${dst}.bak"
     mv "$dst" "${dst}.bak"
   fi
-  ln -sf "$src" "$dst"
+  ln -snf "$src" "$dst"
   echo "  Linked $dst -> $src"
 }
 
@@ -74,7 +59,6 @@ if [[ -d "$DOTFILES_DIR/config" ]]; then
     dir_name="$(basename "$dir")"
     mkdir -p "$HOME/.config"
     link_file "$DOTFILES_DIR/config/$dir_name" "$HOME/.config/$dir_name"
-    echo "  Linked ~/.config/$dir_name"
   done
 fi
 
