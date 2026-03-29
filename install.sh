@@ -16,7 +16,9 @@ if ! command -v brew &>/dev/null; then
 fi
 
 echo "==> Installing Homebrew packages..."
-brew bundle --file="$DOTFILES_DIR/Brewfile" --no-lock
+if ! brew bundle --file="$DOTFILES_DIR/Brewfile" 2>&1; then
+  echo "  (some packages failed to install, see errors above)"
+fi
 
 # --- Oh My Zsh ---
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then

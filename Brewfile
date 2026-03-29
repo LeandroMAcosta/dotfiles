@@ -1,6 +1,3 @@
-# Taps
-tap "homebrew/services"
-
 # Core
 brew "git"
 brew "gh"
@@ -15,7 +12,6 @@ brew "jq"
 brew "python@3.12"
 
 # Modern CLI tools
-brew "eza"
 brew "fzf"
 brew "lazygit"
 brew "zoxide"
@@ -27,7 +23,6 @@ brew "docker-compose"
 # Casks — Apps
 cask "cursor"
 cask "dbeaver-community"
-cask "docker-desktop"
 cask "iterm2"
 cask "logi-options+"
 cask "notion"

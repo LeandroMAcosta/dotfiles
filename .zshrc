@@ -119,11 +119,6 @@ source $ZSH/oh-my-zsh.sh
 #
 
 # --- Modern CLI tools ---
-# eza: better ls
-alias ls="eza --icons --group-directories-first"
-alias ll="eza --icons --group-directories-first -la"
-alias lt="eza --icons --tree --level=2"
-
 # fzf: fuzzy finder (Ctrl+R history, Ctrl+T files)
 source <(fzf --zsh 2>/dev/null)
 
