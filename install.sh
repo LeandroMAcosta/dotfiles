@@ -46,6 +46,13 @@ if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
   git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
 fi
 
+# --- TPM (tmux plugin manager) ---
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+if [[ ! -d "$TPM_DIR" ]]; then
+  echo "==> Installing TPM..."
+  git clone --depth=1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
+fi
+
 # --- Symlink dotfiles ---
 link_file() {
   local src="$1" dst="$2"
