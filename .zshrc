@@ -1,3 +1,8 @@
+# Auto-start tmux (must be before p10k instant prompt to avoid warnings)
+if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [[ -o interactive ]]; then
+  tmux attach -t default 2>/dev/null || tmux new -s default
+fi
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
