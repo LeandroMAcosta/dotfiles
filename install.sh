@@ -67,6 +67,10 @@ if [[ -d "$DOTFILES_DIR/config" ]]; then
   done
 fi
 
+# --- Install tmux plugins ---
+echo "==> Installing tmux plugins..."
+"$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
+
 # --- Reload configs ---
 source "$HOME/.zshrc" 2>/dev/null || true
 tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null || true
