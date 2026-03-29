@@ -125,6 +125,9 @@ source <(fzf --zsh 2>/dev/null)
 # zoxide: smarter cd
 eval "$(zoxide init zsh 2>/dev/null)"
 
+# Aliases
+alias reload='source ~/.zshrc && tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null; echo "All reloaded"'
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 export PATH="$HOME/.local/bin:$PATH"
