@@ -27,7 +27,5 @@ cask "iterm2"
 cask "logi-options+"
 cask "notion"
 cask "postman"
-cask "spotify"
-cask "visual-studio-code"
 cask "vlc"
 
