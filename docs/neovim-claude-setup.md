@@ -4,7 +4,7 @@ Complete guide to set up Neovim with LazyVim and Claude Code integration.
 
 ## 1. Install LazyVim
 
-LazyVim is a Neovim distro that comes with everything preconfigured: LSP, autocompletado, file explorer, fuzzy finder, git, etc.
+LazyVim is a Neovim distro that comes with everything preconfigured: LSP, autocomplete, file explorer, fuzzy finder, git, etc.
 
 ```bash
 # Backup existing config (if any)

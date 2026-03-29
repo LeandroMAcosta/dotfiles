@@ -38,27 +38,32 @@ if [[ ! -d "$TPM_DIR" ]]; then
   git clone --depth=1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
 fi
 
-# --- Symlink dotfiles ---
-link_file() {
+# --- Copy dotfiles ---
+copy_file() {
   local src="$1" dst="$2"
-  if [[ -e "$dst" && ! -L "$dst" ]]; then
-    echo "  Backing up $dst -> ${dst}.bak"
-    mv "$dst" "${dst}.bak"
+  # Remove old symlinks before copying
+  if [[ -L "$dst" ]]; then
+    rm "$dst"
   fi
-  ln -snf "$src" "$dst"
-  echo "  Linked $dst -> $src"
+  if [[ -d "$src" ]]; then
+    rm -rf "$dst"
+    cp -R "$src" "$dst"
+  else
+    cp -f "$src" "$dst"
+  fi
+  echo "  Copied $src -> $dst"
 }
 
-echo "==> Linking config files..."
-link_file "$DOTFILES_DIR/.zshrc"   "$HOME/.zshrc"
-link_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+echo "==> Copying config files..."
+copy_file "$DOTFILES_DIR/.zshrc"   "$HOME/.zshrc"
+copy_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 
-# Link everything in config/ to ~/.config/
+# Copy everything in config/ to ~/.config/
 if [[ -d "$DOTFILES_DIR/config" ]]; then
   for dir in "$DOTFILES_DIR/config"/*/; do
     dir_name="$(basename "$dir")"
     mkdir -p "$HOME/.config"
-    link_file "$DOTFILES_DIR/config/$dir_name" "$HOME/.config/$dir_name"
+    copy_file "$DOTFILES_DIR/config/$dir_name" "$HOME/.config/$dir_name"
   done
 fi
 

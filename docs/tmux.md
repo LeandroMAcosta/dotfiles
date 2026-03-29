@@ -1,53 +1,53 @@
-# tmux + tilish — Tiling Window Manager en la Terminal
+# tmux + tilish — Tiling Window Manager in the Terminal
 
-Terminal multiplexer con keybindings estilo i3wm via [tmux-tilish](https://github.com/jabirali/tmux-tilish).
+Terminal multiplexer with i3wm-style keybindings via [tmux-tilish](https://github.com/jabirali/tmux-tilish).
 
-## Prefijo
+## Prefix
 
-El prefijo es `Ctrl+a` (en lugar del default `Ctrl+b`).
+The prefix is `Ctrl+a` (instead of the default `Ctrl+b`).
 
-## Navegacion entre paneles
+## Pane navigation
 
-| Shortcut | Accion |
+| Shortcut | Action |
 |----------|--------|
-| `Alt + h` | Ir al panel izquierdo |
-| `Alt + j` | Ir al panel de abajo |
-| `Alt + k` | Ir al panel de arriba |
-| `Alt + l` | Ir al panel derecho |
-| `Alt + o` | Siguiente panel (ciclico) |
+| `Alt + h` | Go to left pane |
+| `Alt + j` | Go to pane below |
+| `Alt + k` | Go to pane above |
+| `Alt + l` | Go to right pane |
+| `Alt + o` | Next pane (cyclic) |
 
-## Mover paneles
+## Move panes
 
-| Shortcut | Accion |
+| Shortcut | Action |
 |----------|--------|
-| `Alt + Shift + H` | Intercambiar con panel izquierdo |
-| `Alt + Shift + J` | Intercambiar con panel de abajo |
-| `Alt + Shift + K` | Intercambiar con panel de arriba |
-| `Alt + Shift + L` | Intercambiar con panel derecho |
+| `Alt + Shift + H` | Swap with left pane |
+| `Alt + Shift + J` | Swap with pane below |
+| `Alt + Shift + K` | Swap with pane above |
+| `Alt + Shift + L` | Swap with right pane |
 
-## Workspaces (ventanas)
+## Workspaces (windows)
 
-| Shortcut | Accion |
+| Shortcut | Action |
 |----------|--------|
-| `Alt + 1-9` | Cambiar a workspace 1-9 |
-| `Alt + Shift + 1-9` | Mover panel a workspace 1-9 |
-| `Alt + n` | Renombrar workspace |
+| `Alt + 1-9` | Switch to workspace 1-9 |
+| `Alt + Shift + 1-9` | Move pane to workspace 1-9 |
+| `Alt + n` | Rename workspace |
 
 ## Layouts
 
-En tilish no se elige "split horizontal/vertical" al crear un panel. Se crea el panel con `Alt + Enter` y se elige un layout que reorganiza todos los paneles.
+In tilish you don't choose "horizontal/vertical split" when creating a pane. You create the pane with `Alt + Enter` and choose a layout that reorganizes all panes.
 
-| Shortcut | Layout | Descripcion |
+| Shortcut | Layout | Description |
 |----------|--------|-------------|
-| `Alt + v` | main-vertical | Panel principal a la izquierda, resto apilados a la derecha |
-| `Alt + s` | main-horizontal | Panel principal arriba, resto en fila abajo |
-| `Alt + Shift + V` | even-horizontal | Todos en columnas iguales |
-| `Alt + Shift + S` | even-vertical | Todos en filas iguales |
-| `Alt + t` | tiled | Mosaico uniforme |
-| `Alt + z` | zoom | Panel actual en pantalla completa (toggle) |
-| `Alt + r` | — | Refrescar layout actual |
+| `Alt + v` | main-vertical | Main pane on the left, rest stacked on the right |
+| `Alt + s` | main-horizontal | Main pane on top, rest in a row below |
+| `Alt + Shift + V` | even-horizontal | All in equal columns |
+| `Alt + Shift + S` | even-vertical | All in equal rows |
+| `Alt + t` | tiled | Uniform mosaic |
+| `Alt + z` | zoom | Current pane fullscreen (toggle) |
+| `Alt + r` | — | Refresh current layout |
 
-### Visualizacion de layouts
+### Layout visualization
 
 **main-vertical** (`Alt + v`):
 ```
@@ -94,29 +94,29 @@ En tilish no se elige "split horizontal/vertical" al crear un panel. Se crea el 
 └─────┴─────┘
 ```
 
-Al agregar o cerrar paneles, tilish re-aplica el layout activo automaticamente.
+When adding or closing panes, tilish re-applies the active layout automatically.
 
-## Crear y cerrar
+## Create and close
 
-| Shortcut | Accion |
+| Shortcut | Action |
 |----------|--------|
-| `Alt + Enter` | Nuevo panel (override: split horizontal) |
-| `Alt + Shift + Q` | Cerrar panel |
+| `Alt + Enter` | New pane (override: horizontal split) |
+| `Alt + Shift + Q` | Close pane |
 
-## Otros
+## Other
 
-| Shortcut | Accion |
+| Shortcut | Action |
 |----------|--------|
-| `Alt + Shift + E` | Desconectarse (detach) |
-| `Alt + Shift + C` | Recargar config |
+| `Alt + Shift + E` | Detach |
+| `Alt + Shift + C` | Reload config |
 
-## Shortcuts custom (fuera de tilish)
+## Custom shortcuts (outside tilish)
 
-Definidos en `.tmux.conf`:
+Defined in `.tmux.conf`:
 
-| Shortcut | Accion |
+| Shortcut | Action |
 |----------|--------|
-| `Ctrl+a \|` | Split horizontal |
-| `Ctrl+a -` | Split vertical |
-| `Shift + Left/Right` | Cambiar ventana anterior/siguiente |
-| `Alt + Flechas` | Moverse entre paneles |
+| `Ctrl+a \|` | Horizontal split |
+| `Ctrl+a -` | Vertical split |
+| `Shift + Left/Right` | Previous/next window |
+| `Alt + Arrows` | Move between panes |
