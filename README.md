@@ -45,6 +45,10 @@ git add -A && git commit -m "update configs"
 git push
 ```
 
+## iTerm2 setup
+
+Go to **Settings → Profiles → Keys → General** and set **Left Option Key** to **Esc+**. This makes Option send escape sequences that tmux recognizes as Meta/Alt (by default macOS uses Option for special characters like `@`, `#`, `~`). Required for all `Alt+` keybindings in the tmux config.
+
 ## Regenerating the Brewfile
 
 ```bash
