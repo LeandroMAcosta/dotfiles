@@ -69,7 +69,10 @@ fi
 
 # --- Install tmux plugins ---
 echo "==> Installing tmux plugins..."
+# Start a temporary tmux server so TPM can read the config and install plugins
+tmux new-session -d -s _tpm_install 2>/dev/null || true
 "$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
+tmux kill-session -t _tpm_install 2>/dev/null || true
 
 # --- Reload configs ---
 source "$HOME/.zshrc" 2>/dev/null || true
