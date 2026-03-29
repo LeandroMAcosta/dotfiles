@@ -67,5 +67,9 @@ if [[ -d "$DOTFILES_DIR/config" ]]; then
   done
 fi
 
+# --- Reload configs ---
+source "$HOME/.zshrc" 2>/dev/null || true
+tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null || true
+
 echo ""
-echo "Done! Restart your terminal or run: source ~/.zshrc"
+echo "Done! Configs installed and reloaded."
