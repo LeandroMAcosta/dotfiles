@@ -45,6 +45,37 @@ git add -A && git commit -m "update configs"
 git push
 ```
 
+## Keybindings
+
+### Terminal (zsh)
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+C` | Cancel running command |
+| `Ctrl+A` | Go to beginning of line |
+| `Ctrl+E` | Go to end of line |
+| `Ctrl+U` | Delete entire line |
+| `Ctrl+W` | Delete previous word |
+| `Ctrl+R` | Search command history |
+| `Ctrl+L` | Clear screen |
+| `Ctrl+D` | Close terminal (EOF) |
+
+### Tmux (prefix: `Ctrl+Space`)
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+Space, \|` | Split vertical (side by side) |
+| `Ctrl+Space, -` | Split horizontal (top/bottom) |
+| `Ctrl+Space, r` | Reload config |
+| `Alt+←/→/↑/↓` | Move between panes |
+| `Alt+Shift+←/→/↑/↓` | Swap panes |
+| `Alt+Enter` | New vertical split in current path |
+| `Alt+Shift+Q` | Close pane |
+| `Shift+←/→` | Switch windows |
+| `Ctrl+Space, [` | Enter copy mode (vi keys) |
+| `v` (copy mode) | Start selection |
+| `y` (copy mode) | Copy to clipboard |
+
 ## iTerm2 setup
 
 Go to **Settings → Profiles → Keys → General** and set **Left Option Key** to **Esc+**. This makes Option send escape sequences that tmux recognizes as Meta/Alt (by default macOS uses Option for special characters like `@`, `#`, `~`). Required for all `Alt+` keybindings in the tmux config.
