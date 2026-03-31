@@ -3,13 +3,19 @@ set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# --- Homebrew ---
-if ! command -v brew &>/dev/null; then
-  echo "==> Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  # Apple Silicon
-  if [[ -f /opt/homebrew/bin/brew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+# --- Ensure native ARM Homebrew on Apple Silicon ---
+if [[ "$(uname -m)" == "arm64" || "$(sysctl -n hw.optional.arm64 2>/dev/null)" == "1" ]]; then
+  BREW="/opt/homebrew/bin/brew"
+  if [[ ! -f "$BREW" ]]; then
+    echo "==> Installing Homebrew (ARM native)..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+  eval "$($BREW shellenv)"
+else
+  # Intel Mac
+  if ! command -v brew &>/dev/null; then
+    echo "==> Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
 fi
 

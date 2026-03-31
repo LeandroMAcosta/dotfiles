@@ -1,3 +1,11 @@
+# Homebrew — Apple Silicon (ARM) first, Intel fallback
+if [[ -f /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -f /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+export PATH="$HOME/bin:$PATH"
+
 # Auto-start tmux (must be before p10k instant prompt to avoid warnings)
 if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [[ -o interactive ]]; then
   tmux attach-session || tmux new-session
@@ -9,9 +17,6 @@ fi
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-
-# If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -130,4 +135,7 @@ alias reload='source ~/.zshrc && tmux source-file ~/.config/tmux/tmux.conf 2>/de
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="/opt/homebrew/opt/libpq/bin:$HOME/.local/bin:$PATH"
+
+# Source secrets (API keys, tokens, etc.)
+[[ -f ~/.secrets ]] && source ~/.secrets

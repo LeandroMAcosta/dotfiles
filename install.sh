@@ -69,10 +69,20 @@ fi
 
 # --- Install tmux plugins ---
 echo "==> Installing tmux plugins..."
-# Start a temporary tmux server so TPM can read the config and install plugins
-tmux new-session -d -s _tpm_install 2>/dev/null || true
+# Use a temporary server with our config so TPM knows which plugins to install
+tmux -f "$HOME/.config/tmux/tmux.conf" new-session -d -s _tpm_install 2>/dev/null || true
 "$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
 tmux kill-session -t _tpm_install 2>/dev/null || true
+
+# --- Verify architecture ---
+echo "==> Architecture check:"
+echo "  uname -m: $(uname -m)"
+echo "  arch:     $(arch)"
+if [[ "$(uname -m)" == "arm64" ]]; then
+  echo "  ✓ Running natively on Apple Silicon"
+elif [[ "$(uname -m)" == "x86_64" && -d /opt/homebrew ]]; then
+  echo "  ⚠ Running under Rosetta on Apple Silicon — check your terminal settings"
+fi
 
 # --- Reload configs ---
 source "$HOME/.zshrc" 2>/dev/null || true
