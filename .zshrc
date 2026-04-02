@@ -7,7 +7,7 @@ fi
 export PATH="$HOME/bin:$PATH"
 
 # Auto-start tmux (must be before p10k instant prompt to avoid warnings)
-if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [[ -o interactive ]]; then
+if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [[ -o interactive ]] && [ -z "$SSH_CONNECTION" ]; then
   exec tmux attach-session 2>/dev/null || exec tmux new-session
 fi
 
