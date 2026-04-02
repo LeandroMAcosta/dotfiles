@@ -4,7 +4,7 @@ Terminal multiplexer with i3wm-style keybindings via [tmux-tilish](https://githu
 
 ## Prefix
 
-The prefix is `Ctrl+a` (instead of the default `Ctrl+b`).
+The prefix is `Ctrl+Space` (instead of the default `Ctrl+b`).
 
 ## Pane navigation
 
@@ -116,7 +116,8 @@ Defined in `.tmux.conf`:
 
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl+a \|` | Horizontal split |
-| `Ctrl+a -` | Vertical split |
+| `Ctrl+Space \|` | Horizontal split |
+| `Ctrl+Space -` | Vertical split |
 | `Shift + Left/Right` | Previous/next window |
 | `Alt + Arrows` | Move between panes |
+| `Alt + Ctrl + Arrows` | Resize pane (2 cells) |

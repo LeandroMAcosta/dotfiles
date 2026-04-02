@@ -67,12 +67,23 @@ if [[ -d "$DOTFILES_DIR/config" ]]; then
   done
 fi
 
-# --- Install tmux plugins ---
-echo "==> Installing tmux plugins..."
-# Use a temporary server with our config so TPM knows which plugins to install
-tmux -f "$HOME/.config/tmux/tmux.conf" new-session -d -s _tpm_install 2>/dev/null || true
-"$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
-tmux kill-session -t _tpm_install 2>/dev/null || true
+# --- Install tmux plugins (only if missing) ---
+plugin_missing=false
+for plugin_name in tmux-tilish tmux tmux-resurrect tmux-continuum; do
+  if [[ ! -d "$HOME/.tmux/plugins/$plugin_name" ]]; then
+    plugin_missing=true
+    break
+  fi
+done
+
+if $plugin_missing; then
+  echo "==> Installing tmux plugins..."
+  tmux -f "$HOME/.config/tmux/tmux.conf" new-session -d -s _tpm_install 2>/dev/null || true
+  "$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
+  tmux kill-session -t _tpm_install 2>/dev/null || true
+else
+  echo "==> Tmux plugins already installed, skipping"
+fi
 
 # --- Verify architecture ---
 echo "==> Architecture check:"
