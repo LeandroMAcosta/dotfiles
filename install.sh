@@ -95,6 +95,33 @@ elif [[ "$(uname -m)" == "x86_64" && -d /opt/homebrew ]]; then
   echo "  ⚠ Running under Rosetta on Apple Silicon — check your terminal settings"
 fi
 
+# --- Claude Code config ---
+if [[ -d "$DOTFILES_DIR/claude" ]]; then
+  echo "==> Copying Claude Code configs..."
+  mkdir -p "$HOME/.claude"
+  copy_file "$DOTFILES_DIR/claude/CLAUDE.md"      "$HOME/.claude/CLAUDE.md"
+  copy_file "$DOTFILES_DIR/claude/settings.json"   "$HOME/.claude/settings.json"
+
+  if [[ -d "$DOTFILES_DIR/claude/rules" ]]; then
+    mkdir -p "$HOME/.claude/rules"
+    for rule in "$DOTFILES_DIR/claude/rules"/*.md; do
+      copy_file "$rule" "$HOME/.claude/rules/$(basename "$rule")"
+    done
+  fi
+
+  if [[ -d "$DOTFILES_DIR/claude/contexts" ]]; then
+    mkdir -p "$HOME/.claude/contexts"
+    for ctx in "$DOTFILES_DIR/claude/contexts"/*.md; do
+      copy_file "$ctx" "$HOME/.claude/contexts/$(basename "$ctx")"
+    done
+  fi
+
+  if [[ -f "$DOTFILES_DIR/claude/plugins/known_marketplaces.json" ]]; then
+    mkdir -p "$HOME/.claude/plugins"
+    copy_file "$DOTFILES_DIR/claude/plugins/known_marketplaces.json" "$HOME/.claude/plugins/known_marketplaces.json"
+  fi
+fi
+
 # --- Reload configs ---
 source "$HOME/.zshrc" 2>/dev/null || true
 tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null || true
