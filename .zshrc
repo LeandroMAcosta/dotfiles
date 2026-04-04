@@ -8,7 +8,7 @@ export PATH="$HOME/bin:$PATH"
 
 # Auto-start tmux (must be before p10k instant prompt to avoid warnings)
 if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [[ -o interactive ]] && [ -z "$SSH_CONNECTION" ] && [ "$TERM_PROGRAM" != "vscode" ]; then
-  exec tmux attach-session 2>/dev/null || exec tmux new-session
+  exec tmux new-session -A -s main
 fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
