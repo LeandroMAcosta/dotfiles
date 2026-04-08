@@ -28,6 +28,8 @@ cask "dbeaver-community"
 cask "iterm2"
 cask "claude"
 cask "logi-options+"
+cask "alt-tab"
+cask "raycast"
 cask "1password"
 cask "1password-cli"
 
