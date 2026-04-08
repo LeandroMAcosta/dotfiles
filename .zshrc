@@ -103,12 +103,8 @@ source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
+# Preferred editor
+export EDITOR='nvim'
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -128,7 +124,7 @@ source $ZSH/oh-my-zsh.sh
 source <(fzf --zsh 2>/dev/null)
 
 # zoxide: smarter cd
-eval "$(zoxide init zsh 2>/dev/null)"
+eval "$(zoxide init zsh --cmd cd 2>/dev/null)"
 
 # Aliases
 alias reload='source ~/.zshrc && tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null; echo "All reloaded"'
@@ -141,5 +137,8 @@ alias claude-review='claude --system-prompt "$(cat ~/.claude/contexts/review.md)
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 export PATH="/opt/homebrew/opt/libpq/bin:$HOME/.local/bin:$PATH"
 
-# Source secrets (API keys, tokens, etc.)
-[[ -f ~/.secrets ]] && source ~/.secrets
+# 1Password shell plugins (aws, gh, etc.)
+[[ -f ~/.config/op/plugins.sh ]] && source ~/.config/op/plugins.sh
+
+# Source secrets via 1Password (API keys, tokens, etc.)
+alias load-secrets='eval $(op inject -i ~/.secrets.env.tpl)'

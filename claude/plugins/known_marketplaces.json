@@ -3,6 +3,8 @@
     "source": {
       "source": "github",
       "repo": "anthropics/claude-plugins-official"
-    }
+    },
+    "installLocation": "~/.claude/plugins/claude-plugins-official",
+    "lastUpdated": "2026-04-08T00:00:00.000Z"
   }
 }

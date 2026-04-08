@@ -15,6 +15,8 @@ brew "python@3.12"
 brew "fzf"
 brew "lazygit"
 brew "zoxide"
+brew "mprocs"
+brew "yazi"
 
 # Cloud & infra
 brew "awscli"
@@ -26,4 +28,6 @@ cask "dbeaver-community"
 cask "iterm2"
 cask "claude"
 cask "logi-options+"
+cask "1password"
+cask "1password-cli"
 

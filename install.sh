@@ -57,6 +57,16 @@ copy_file() {
 echo "==> Copying config files..."
 copy_file "$DOTFILES_DIR/.zshrc"   "$HOME/.zshrc"
 copy_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+copy_file "$DOTFILES_DIR/.secrets.env.tpl" "$HOME/.secrets.env.tpl"
+
+# SSH config
+mkdir -p "$HOME/.ssh"
+copy_file "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
+chmod 600 "$HOME/.ssh/config"
+
+# AWS config (profiles/regions only, no credentials)
+mkdir -p "$HOME/.aws"
+copy_file "$DOTFILES_DIR/aws/config" "$HOME/.aws/config"
 
 # Copy everything in config/ to ~/.config/
 if [[ -d "$DOTFILES_DIR/config" ]]; then
@@ -131,6 +141,17 @@ fi
 # --- Reload configs ---
 source "$HOME/.zshrc" 2>/dev/null || true
 tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null || true
+
+# --- 1Password setup check ---
+if ! command -v op &>/dev/null || ! op account list &>/dev/null 2>&1; then
+  echo ""
+  echo "==> 1Password manual setup needed:"
+  echo "  1. Open 1Password app → Settings → Developer"
+  echo "     - Enable 'Integrate with 1Password CLI'"
+  echo "     - Enable 'Use the SSH Agent'"
+  echo "  2. Run: op plugin init aws"
+  echo "  3. Run: load-secrets (to verify secrets injection)"
+fi
 
 echo ""
 echo "Done! Configs installed and reloaded."
