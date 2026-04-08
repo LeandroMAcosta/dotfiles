@@ -122,6 +122,12 @@ if [[ -d "$DOTFILES_DIR/claude" ]]; then
   fi
 fi
 
+# --- Claude Code skills ---
+if command -v npx &>/dev/null; then
+  echo "==> Installing Claude Code skills..."
+  npx -y skills add JuliusBrussee/caveman -g -y --agent claude-code 2>/dev/null || true
+fi
+
 # --- Reload configs ---
 source "$HOME/.zshrc" 2>/dev/null || true
 tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null || true

@@ -25,7 +25,4 @@ cask "cursor"
 cask "dbeaver-community"
 cask "iterm2"
 cask "logi-options+"
-cask "notion"
-cask "postman"
-cask "vlc"
 
