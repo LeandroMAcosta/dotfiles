@@ -24,5 +24,6 @@ brew "docker-compose"
 cask "cursor"
 cask "dbeaver-community"
 cask "iterm2"
+cask "claude"
 cask "logi-options+"
 
