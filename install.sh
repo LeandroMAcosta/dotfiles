@@ -59,10 +59,25 @@ copy_file "$DOTFILES_DIR/.zshrc"   "$HOME/.zshrc"
 copy_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 copy_file "$DOTFILES_DIR/.secrets.env.tpl" "$HOME/.secrets.env.tpl"
 
-# SSH config
+# SSH config (merge: dotfiles entries first, then append local-only hosts)
 mkdir -p "$HOME/.ssh"
-copy_file "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
+if [[ -f "$HOME/.ssh/config" ]]; then
+  # Keep only Host blocks from existing config that are NOT in dotfiles
+  dotfiles_hosts=$(awk '/^Host / { print $2 }' "$DOTFILES_DIR/ssh/config")
+  local_entries=$(awk -v known="$dotfiles_hosts" '
+    BEGIN { n=split(known, arr, "\n"); for (i=1;i<=n;i++) skip_host[arr[i]]=1 }
+    /^Host / { skip = ($2 in skip_host) }
+    !skip
+  ' "$HOME/.ssh/config")
+  cp -f "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
+  if [[ -n "$local_entries" ]]; then
+    printf '\n%s\n' "$local_entries" >> "$HOME/.ssh/config"
+  fi
+else
+  cp -f "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
+fi
 chmod 600 "$HOME/.ssh/config"
+echo "  Merged SSH config"
 
 # AWS config (profiles/regions only, no credentials)
 mkdir -p "$HOME/.aws"
