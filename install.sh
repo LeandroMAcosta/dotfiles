@@ -63,9 +63,9 @@ copy_file "$DOTFILES_DIR/.secrets.env.tpl" "$HOME/.secrets.env.tpl"
 mkdir -p "$HOME/.ssh"
 if [[ -f "$HOME/.ssh/config" ]]; then
   # Keep only Host blocks from existing config that are NOT in dotfiles
-  dotfiles_hosts=$(awk '/^Host / { print $2 }' "$DOTFILES_DIR/ssh/config")
+  dotfiles_hosts=$(awk '/^Host / { printf "%s,", $2 }' "$DOTFILES_DIR/ssh/config")
   local_entries=$(awk -v known="$dotfiles_hosts" '
-    BEGIN { n=split(known, arr, "\n"); for (i=1;i<=n;i++) skip_host[arr[i]]=1 }
+    BEGIN { n=split(known, arr, ","); for (i=1;i<=n;i++) if (arr[i]!="") skip_host[arr[i]]=1 }
     /^Host / { skip = ($2 in skip_host) }
     !skip
   ' "$HOME/.ssh/config")
