@@ -153,6 +153,7 @@ if command -v npx &>/dev/null; then
   npx -y skills add JuliusBrussee/caveman -g -y --agent claude-code 2>/dev/null || true
   npx -y skills add nextlevelbuilder/ui-ux-pro-max-skill -g -y --agent claude-code 2>/dev/null || true
   npx -y skills add shadcn/ui -g -y --agent claude-code 2>/dev/null || true
+  npx -y skills add forrestchang/andrej-karpathy-skills -g -y --agent claude-code 2>/dev/null || true
 fi
 
 # --- Reload configs ---
