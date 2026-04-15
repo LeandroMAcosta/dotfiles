@@ -7,62 +7,50 @@
 - [ ] Crear templates: daily note y ADR (con Templater)
 - [ ] Commitear `.obsidian/` al vault repo (para replicar config en otra Mac)
 
-## Reorganizar ~/Workspace
+## Reorganizar ~/Workspace (HECHO)
 
-Estructura actual:
-
-```
-~/Workspace/
-├── EsquelDev/          # estudio propio (GitHub org: EsquelDev)
-│   ├── futala-api/
-│   ├── highland-tickets/
-│   ├── futala-admin/
-│   ├── futala-infra/
-│   ├── esquel-dev-landing/
-│   ├── infra-core/
-│   └── dotfiles/       # este repo
-├── Taller/             # empleador/cliente
-└── Improving/          # empleador/cliente
-```
-
-Estructura destino:
+Estructura final:
 
 ```
 ~/Workspace/
 ├── work/
-│   ├── esqueldev/                     # estudio propio
+│   ├── esqueldev/
 │   │   ├── products/
-│   │   │   ├── futala/                # plataforma multi-tenant (cohesive)
+│   │   │   ├── futala/                # multi-tenant platform
 │   │   │   │   ├── futala-api/
 │   │   │   │   ├── futala-admin/
 │   │   │   │   ├── highland-tickets/
 │   │   │   │   ├── futala-infra/
 │   │   │   │   ├── specs/
 │   │   │   │   ├── mprocs.yaml
-│   │   │   │   └── CLAUDE.md
-│   │   │   └── esquel-dev-landing/    # sitio corporativo standalone
-│   │   ├── clients/                   # trabajo para terceros via EsquelDev
-│   │   ├── platform/
-│   │   │   └── infra-core/            # AWS Org, IAM, billing (cross-product)
-│   │   ├── templates/
-│   │   │   ├── fastapi-template/
-│   │   │   ├── fastapi-serverless-template/
-│   │   │   ├── react-template/
-│   │   │   ├── infra-ec2-template/
-│   │   │   └── infra-serverless-template/
-│   │   └── sandbox/                   # experimentos de EsquelDev
-│   ├── taller/                        # empleador/cliente
-│   └── improving/                     # empleador/cliente
+│   │   │   │   ├── CLAUDE.md
+│   │   │   │   ├── docker-compose.highland.yml
+│   │   │   │   └── docker-compose.futala-admin.yml
+│   │   │   ├── esquel-dev-landing/
+│   │   │   └── esquel-ai/
+│   │   ├── platform/infra-core/
+│   │   ├── templates/{fastapi,fastapi-serverless,react,infra-ec2,infra-serverless}/
+│   │   └── sandbox/ai-playground/
+│   ├── taller/
+│   └── improving/
 ├── personal/
-│   ├── dotfiles/                      # este repo (mover aca)
+│   ├── dotfiles/                      # este repo
+│   ├── finance/
+│   ├── LatexCV/
+│   ├── my-cv/
 │   └── side-projects/
-├── learning/
-│   ├── aws-saa/
-│   │   ├── notes/                     # linkeable con Obsidian vault
-│   │   ├── labs/                      # Terraform hands-on
-│   │   └── practice-exams/
-│   └── otros-cursos/
-└── sandbox/                           # experimentos personales throwaway
+│       ├── fastapi-boilerplate/
+│       ├── claude-remote-server/
+│       ├── cv-tex/
+│       ├── oop/
+│       ├── scrapper-codes/
+│       └── tesis_2/
+├── learning/aws-saa/{notes,labs,practice-exams}/
+├── archive/                           # legacy / proyectos pasados
+│   ├── canalytics/
+│   ├── yendo/
+│   └── highland-prototype/            # prototipo monolitico viejo
+└── sandbox/                           # experimentos descartables
 ```
 
 Criterio para nuevos proyectos:
@@ -71,18 +59,23 @@ Criterio para nuevos proyectos:
 - Infra/tooling cross-product → `work/esqueldev/platform/`
 - Template reusable → `work/esqueldev/templates/`
 - Estudio → `learning/<tema>/`
+- Side project personal → `personal/side-projects/`
 - Experimento descartable → `sandbox/`
+- Archivo muerto → `archive/`
 
 Tareas:
-- [ ] Crear estructura de directorios destino
-- [ ] Mover repos de EsquelDev a `work/esqueldev/` (products, platform, templates)
-- [ ] Mover dotfiles a `personal/dotfiles/`
-- [ ] Mover Taller e Improving a `work/taller/` y `work/improving/`
-- [ ] Mover `mprocs.yaml` y `CLAUDE.md` de EsquelDev a `work/esqueldev/products/futala/`
-- [ ] Actualizar paths en `mprocs.yaml` (relativos a nueva ubicacion)
-- [ ] Actualizar aliases de shell que referencien `~/Workspace/EsquelDev`
-- [ ] Actualizar IDE workspaces/recientes (Cursor, etc.)
-- [ ] Verificar que dev servers arrancan correctamente despues del move
+- [x] Crear estructura de directorios destino
+- [x] Mover repos de EsquelDev a `work/esqueldev/` (products, platform, templates)
+- [x] Mover dotfiles a `personal/dotfiles/`
+- [x] Mover Taller e Improving a `work/taller/` y `work/improving/`
+- [x] Mover `mprocs.yaml` y `CLAUDE.md` de EsquelDev a `work/esqueldev/products/futala/`
+- [x] Actualizar paths en `mprocs.yaml` (sin `Projects/` prefix)
+- [x] Archivar Canalytics, Yendo, Code/highland
+- [x] Mover Code/ (fastapi-boilerplate, claude-remote-server, my-cv, cv, oop, scrapper, tesis) a personal
+- [x] Actualizar `work/esqueldev/CLAUDE.md` con nueva jerarquia
+- [x] Crear `work/esqueldev/products/futala/CLAUDE.md`
+- [ ] Actualizar IDE workspaces/recientes (Cursor, `.code-workspace` referencia paths viejos)
+- [ ] Verificar que dev servers arrancan correctamente despues del move (correr `mprocs` desde futala/)
 
 ## Obsidian vault (ya creado)
 
