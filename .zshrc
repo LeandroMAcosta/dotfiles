@@ -123,9 +123,6 @@ export EDITOR='nvim'
 # fzf: fuzzy finder (Ctrl+R history, Ctrl+T files)
 source <(fzf --zsh 2>/dev/null)
 
-# zoxide: smarter cd
-eval "$(zoxide init zsh --cmd cd 2>/dev/null)"
-
 # Aliases
 alias reload='source ~/.zshrc && tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null; echo "All reloaded"'
 
@@ -142,3 +139,7 @@ export PATH="/opt/homebrew/opt/libpq/bin:$HOME/.local/bin:$PATH"
 
 # Source secrets via 1Password (API keys, tokens, etc.)
 alias load-secrets='eval $(op inject -i ~/.secrets.env.tpl)'
+
+# zoxide: smarter cd (MUST be at the end of this file — zoxide hooks chpwd
+# and needs to install after any other tool that might touch that hook).
+eval "$(zoxide init zsh --cmd cd 2>/dev/null)"
