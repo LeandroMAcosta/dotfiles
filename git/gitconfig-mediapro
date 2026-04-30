@@ -1,0 +1,7 @@
+[user]
+	email = lacosta@ext.mediapro.tv
+[url "git@ssh.dev.azure.com-mediapro:"]
+	insteadOf = git@ssh.dev.azure.com:
+[url "git@ssh.dev.azure.com-mediapro:v3/"]
+	insteadOf = https://dev.azure.com/
+	insteadOf = https://ImaginaDEVOPS@dev.azure.com/

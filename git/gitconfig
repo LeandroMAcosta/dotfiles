@@ -1,0 +1,9 @@
+[http]
+	postBuffer = 524288000
+[user]
+	name = Leandro Acosta
+	email = leacosta97@gmail.com
+[includeIf "gitdir:~/Workspace/Improving/"]
+	path = ~/.gitconfig-improving
+[includeIf "gitdir:~/Workspace/work/improving/MediaPro/"]
+	path = ~/.gitconfig-mediapro
