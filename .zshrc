@@ -137,9 +137,53 @@ export PATH="/opt/homebrew/opt/libpq/bin:$HOME/.local/bin:$PATH"
 # 1Password shell plugins (aws, gh, etc.)
 [[ -f ~/.config/op/plugins.sh ]] && source ~/.config/op/plugins.sh
 
-# Source secrets via 1Password (API keys, tokens, etc.)
-alias load-secrets='eval $(op inject -i ~/.secrets.env.tpl)'
+# Source secrets via 1Password. Skips items missing in vault with a warning
+# instead of aborting the whole template.
+load-secrets() {
+  local tpl="${1:-$HOME/.secrets.env.tpl}"
+  [[ -f "$tpl" ]] || { print -u2 "load-secrets: template not found: $tpl"; return 1; }
+
+  local tmp; tmp=$(mktemp) || return 1
+  local -A item_exists
+  local -a skipped
+  local line ref vault item key
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    if [[ "$line" != *"op://"* ]]; then
+      print -r -- "$line" >>"$tmp"
+      continue
+    fi
+    ref=$(print -r -- "$line" | grep -oE 'op://[^}]+' | head -1 | sed 's/[[:space:]]*$//')
+    vault=$(print -r -- "$ref" | cut -d/ -f3)
+    item=$(print -r -- "$ref" | cut -d/ -f4)
+    key="${vault}|${item}"
+
+    if [[ -z "${item_exists[$key]+x}" ]]; then
+      if op item get "$item" --vault "$vault" >/dev/null 2>&1; then
+        item_exists[$key]=1
+      else
+        item_exists[$key]=0
+      fi
+    fi
+
+    if [[ "${item_exists[$key]}" == "1" ]]; then
+      print -r -- "$line" >>"$tmp"
+    else
+      skipped+=("$ref")
+    fi
+  done <"$tpl"
+
+  [[ -s "$tmp" ]] && eval "$(op inject -i "$tmp" 2>/dev/null)"
+  rm -f "$tmp"
+
+  for ref in "${skipped[@]}"; do
+    print -u2 "load-secrets: skipped (not in 1P): $ref"
+  done
+}
 
 # zoxide: smarter cd (MUST be at the end of this file — zoxide hooks chpwd
 # and needs to install after any other tool that might touch that hook).
-eval "$(zoxide init zsh --cmd cd 2>/dev/null)"
+# Skipped inside Claude Code: its shell snapshot loses chpwd_functions registration.
+if [[ -z "${CLAUDECODE:-}" ]]; then
+  eval "$(zoxide init zsh --cmd cd 2>/dev/null)"
+fi

@@ -5,3 +5,7 @@ export MP_CLIENT_ID={{ op://Developer Secrets/MercadoPago/client_id }}
 export MP_CLIENT_SECRET={{ op://Developer Secrets/MercadoPago/client_secret }}
 export CLOUDFLARE_API_TOKEN={{ op://Developer Secrets/Cloudflare/credential }}
 export ANTHROPIC_API_KEY={{ op://Developer Secrets/Anthropic/credential }}
+export ENGBIM_BITBUCKET_TOKEN={{ op://Developer Secrets/Bitbucket ENGBIM API Token/credential }}
+export ENGBIM_BITBUCKET_USERNAME={{ op://Developer Secrets/Bitbucket ENGBIM API Token/username }}
+export ENGBIM_BITBUCKET_WORKSPACE={{ op://Developer Secrets/Bitbucket ENGBIM API Token/workspace }}
+export ZAI_API_KEY={{ op://Developer Secrets/ZAI Coding/credential }}
