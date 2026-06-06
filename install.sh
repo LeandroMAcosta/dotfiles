@@ -32,11 +32,8 @@ if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
 fi
 
 # --- TPM (tmux plugin manager) ---
-TPM_DIR="$HOME/.tmux/plugins/tpm"
-if [[ ! -d "$TPM_DIR" ]]; then
-  echo "==> Installing TPM..."
-  git clone --depth=1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
-fi
+# Cloned later, after the tmux config copy, to land at the XDG plugin path
+# (~/.config/tmux/plugins/tpm) without being wiped by copy_file.
 
 # --- Copy dotfiles ---
 copy_file() {
@@ -111,9 +108,23 @@ if [[ -d "$DOTFILES_DIR/config" ]]; then
 fi
 
 # --- Install tmux plugins (only if missing) ---
+# TPM honours XDG: when ~/.config/tmux/tmux.conf exists, plugins live in
+# ~/.config/tmux/plugins/ instead of ~/.tmux/plugins/.
+if [[ -f "$HOME/.config/tmux/tmux.conf" ]]; then
+  TPM_PLUGIN_DIR="$HOME/.config/tmux/plugins"
+else
+  TPM_PLUGIN_DIR="$HOME/.tmux/plugins"
+fi
+
+# Clone TPM here (after the tmux config copy wiped any previous plugins/ dir).
+if [[ ! -d "$TPM_PLUGIN_DIR/tpm" ]]; then
+  echo "==> Installing TPM at $TPM_PLUGIN_DIR/tpm..."
+  git clone --depth=1 https://github.com/tmux-plugins/tpm "$TPM_PLUGIN_DIR/tpm"
+fi
+
 plugin_missing=false
 for plugin_name in tmux-tilish tmux tmux-resurrect tmux-continuum; do
-  if [[ ! -d "$HOME/.tmux/plugins/$plugin_name" ]]; then
+  if [[ ! -d "$TPM_PLUGIN_DIR/$plugin_name" ]]; then
     plugin_missing=true
     break
   fi
@@ -121,9 +132,17 @@ done
 
 if $plugin_missing; then
   echo "==> Installing tmux plugins..."
-  tmux -f "$HOME/.config/tmux/tmux.conf" new-session -d -s _tpm_install 2>/dev/null || true
-  "$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
-  tmux kill-session -t _tpm_install 2>/dev/null || true
+  # If a tmux server is already running (e.g. user invoked install.sh from
+  # inside tmux), reload the conf there so TPM sets TMUX_PLUGIN_MANAGER_PATH.
+  # Otherwise spin up a throwaway detached server.
+  if tmux list-sessions &>/dev/null; then
+    tmux source-file "$HOME/.config/tmux/tmux.conf"
+    "$TPM_PLUGIN_DIR/tpm/bin/install_plugins"
+  else
+    tmux -f "$HOME/.config/tmux/tmux.conf" new-session -d -s _tpm_install
+    "$TPM_PLUGIN_DIR/tpm/bin/install_plugins"
+    tmux kill-session -t _tpm_install 2>/dev/null || true
+  fi
 else
   echo "==> Tmux plugins already installed, skipping"
 fi
