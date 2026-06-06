@@ -38,7 +38,9 @@ brew bundle dump --file=~/dotfiles/Brewfile --force
 
 ## iTerm2 prerequisite
 
-**Left Option Key must be set to Esc+** (Settings → Profiles → Keys → General) for all `Alt+` tmux keybindings to work.
+`macos.sh` automates two iTerm2 profile settings (restart iTerm to apply):
+- **Option Key Sends = Esc+** on left + right Option, required so dead-key layouts (Spanish/Latin etc.) don't swallow tmux `Alt+letter` bindings (e.g. `Alt+N` rename-window).
+- **Font = MesloLGS Nerd Font Mono 13**, required by Powerlevel10k and the tmux Catppuccin status bar icons.
 
 ## Conventions
 

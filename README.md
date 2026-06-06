@@ -117,7 +117,10 @@ Azure DevOps only accepts **RSA** SSH keys (ed25519 is rejected). The `gitdir:~/
 
 ## iTerm2 setup
 
-Go to **Settings → Profiles → Keys → General** and set **Left Option Key** to **Esc+**. This makes Option send escape sequences that tmux recognizes as Meta/Alt (by default macOS uses Option for special characters like `@`, `#`, `~`). Required for all `Alt+` keybindings in the tmux config.
+`./macos.sh` writes both Option Keys to **Esc+** and pins the profile font to **MesloLGS Nerd Font Mono**. Restart iTerm after running it.
+
+- Option=Esc+ is what makes tmux see `Alt+letter` bindings; without it, dead-key layouts (Spanish/Latin) eat combos like `Alt+N` (rename window).
+- MesloLGS NF is required by Powerlevel10k and the tmux Catppuccin status bar — without a Nerd Font the prompt and status bar render as boxes/`?`.
 
 ## Regenerating the Brewfile
 

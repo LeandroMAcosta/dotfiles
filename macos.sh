@@ -61,6 +61,25 @@ defaults write com.apple.screencapture disable-shadow -bool true
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
+# --- iTerm2 ---
+# Set Left + Right Option to Esc+ (required for tmux Alt+letter bindings,
+# otherwise dead-keys on Spanish/Latin layouts swallow Option+N etc.).
+# Also pin the font to MesloLGS Nerd Font (Powerlevel10k + Catppuccin icons).
+# Uses defaults import (cfprefsd-safe) instead of editing the plist directly.
+if [[ -f "$HOME/Library/Preferences/com.googlecode.iterm2.plist" ]] && command -v python3 &>/dev/null; then
+  defaults export com.googlecode.iterm2 - | python3 -c '
+import sys, plistlib
+data = plistlib.loads(sys.stdin.buffer.read())
+for p in data.get("New Bookmarks", []):
+    p["Option Key Sends"] = 2
+    p["Right Option Key Sends"] = 2
+    p["Normal Font"] = "MesloLGSNFM-Regular 13"
+    p["Non Ascii Font"] = "MesloLGSNFM-Regular 13"
+sys.stdout.buffer.write(plistlib.dumps(data))
+' | defaults import com.googlecode.iterm2 -
+  echo "  iTerm2: Option=Esc+, font=MesloLGS NF (restart iTerm to apply)"
+fi
+
 # --- Restart affected apps ---
 echo "==> Restarting affected apps..."
 for app in Finder Dock SystemUIServer; do

@@ -34,3 +34,6 @@ cask "obsidian"
 cask "1password"
 cask "1password-cli"
 
+# Fonts (Nerd Font required by Powerlevel10k and tmux Catppuccin icons)
+cask "font-meslo-lg-nerd-font"
+
