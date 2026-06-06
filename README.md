@@ -54,9 +54,12 @@ All code lives under `~/Workspace/`, organized by purpose:
 ```
 ~/Workspace/
 ├── work/        # Client / employer projects, grouped by org
-│   ├── esqueldev/
-│   ├── improving/   # orion-backend, nambdo, ...
-│   └── goply/       # goply-iac, yendo-frontend, yendo-backend
+│   ├── engbim/      # own workspace: repos/, docs/, notes/, unity/, ...
+│   ├── esqueldev/   # repo with platform/, products/, templates/
+│   ├── goply/       # goply-iac, yendo-backend, yendo-frontend
+│   ├── improving/   # orion-backend, MediaPro, nambdo, earnup, trinet, ...
+│   ├── taller/      # own workspace: Repos/, Reports/, docs/, ...
+│   └── techwarely/  # admin/, repos/
 ├── personal/    # Personal projects (incl. this dotfiles repo)
 │   └── side-projects/   # smaller experiments
 ├── thesis/      # Academic work
@@ -64,8 +67,9 @@ All code lives under `~/Workspace/`, organized by purpose:
 ```
 
 Convention: top level is by purpose (`work` / `personal` / `thesis` / `archive`),
-second level groups by org or category, third level is the repo. Each repo keeps
-its own git remote; nothing here is a monorepo.
+second level groups by org or category. Most leaves are individual repos with
+their own git remote (nothing here is a monorepo); a few orgs (`engbim`, `taller`)
+are themselves workspace folders that nest their repos under a `repos/` subdir.
 
 ## Keybindings
 
