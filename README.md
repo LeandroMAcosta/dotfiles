@@ -47,6 +47,26 @@ git add -A && git commit -m "update configs"
 git push
 ```
 
+## Workspace structure
+
+All code lives under `~/Workspace/`, organized by purpose:
+
+```
+~/Workspace/
+├── work/        # Client / employer projects, grouped by org
+│   ├── esqueldev/
+│   ├── improving/   # orion-backend, nambdo, ...
+│   └── goply/       # goply-iac, yendo-frontend, yendo-backend
+├── personal/    # Personal projects (incl. this dotfiles repo)
+│   └── side-projects/   # smaller experiments
+├── thesis/      # Academic work
+└── archive/     # Inactive / legacy projects (yendo, canalytics, ...)
+```
+
+Convention: top level is by purpose (`work` / `personal` / `thesis` / `archive`),
+second level groups by org or category, third level is the repo. Each repo keeps
+its own git remote; nothing here is a monorepo.
+
 ## Keybindings
 
 ### Terminal (zsh)
