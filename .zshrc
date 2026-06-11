@@ -181,6 +181,19 @@ load-secrets() {
   done
 }
 
+# Load secrets from 1Password, cached for 24h to avoid repeated macOS TCC prompts.
+# Skipped inside Claude Code (shell snapshot has no chpwd/hook context).
+if [[ -z "${CLAUDECODE:-}" ]]; then
+  _secrets_cache="${XDG_CACHE_HOME:-$HOME/.cache}/secrets.env"
+  _secrets_ttl=86400
+  if [[ ! -f "$_secrets_cache" ]] || \
+     (( $(date +%s) - $(stat -f %m "$_secrets_cache" 2>/dev/null || echo 0) > _secrets_ttl )); then
+    op inject -i ~/.secrets.env.tpl 2>/dev/null > "$_secrets_cache" && chmod 600 "$_secrets_cache"
+  fi
+  [[ -f "$_secrets_cache" ]] && source "$_secrets_cache"
+  unset _secrets_cache _secrets_ttl
+fi
+
 # zoxide: smarter cd (MUST be at the end of this file — zoxide hooks chpwd
 # and needs to install after any other tool that might touch that hook).
 # Skipped inside Claude Code: its shell snapshot loses chpwd_functions registration.

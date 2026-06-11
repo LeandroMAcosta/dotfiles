@@ -9,3 +9,4 @@ export ENGBIM_BITBUCKET_TOKEN={{ op://Developer Secrets/Bitbucket ENGBIM API Tok
 export ENGBIM_BITBUCKET_USERNAME={{ op://Developer Secrets/Bitbucket ENGBIM API Token/username }}
 export ENGBIM_BITBUCKET_WORKSPACE={{ op://Developer Secrets/Bitbucket ENGBIM API Token/workspace }}
 export ZAI_API_KEY={{ op://Developer Secrets/ZAI Coding/credential }}
+export OPENROUTER_API_KEY={{ op://Developer Secrets/OpenRouter/credential }}

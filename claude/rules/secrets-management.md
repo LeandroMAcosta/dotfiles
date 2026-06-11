@@ -26,4 +26,4 @@ export MY_SECRET="$(op item get '<Item Name>' --vault 'Developer Secrets' --fiel
 
 ### Available items in Developer Secrets vault
 
-Cloudflare, Grafana, MercadoPago, Azure DevOps, Anthropic, AWS Access Key (esqueldev), id_ed25519_leacosta97, Bitbucket ENGBIM API Token, ZAI Coding.
+Cloudflare, Grafana, MercadoPago, Azure DevOps, Anthropic, AWS Access Key (esqueldev), id_ed25519_leacosta97, Bitbucket ENGBIM API Token, ZAI Coding, OpenRouter.
