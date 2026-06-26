@@ -10,3 +10,7 @@ export ENGBIM_BITBUCKET_USERNAME={{ op://Developer Secrets/Bitbucket ENGBIM API 
 export ENGBIM_BITBUCKET_WORKSPACE={{ op://Developer Secrets/Bitbucket ENGBIM API Token/workspace }}
 export ZAI_API_KEY={{ op://Developer Secrets/ZAI Coding/credential }}
 export OPENROUTER_API_KEY={{ op://Developer Secrets/OpenRouter/credential }}
+export GODADDY_API_KEY={{ op://Developer Secrets/GoDaddy/credential }}
+export GODADDY_API_SECRET={{ op://Developer Secrets/GoDaddy/secret }}
+export GODADDY_GOPLY_API_KEY={{ op://Developer Secrets/GoDaddyGoply/credential }}
+export GODADDY_GOPLY_API_SECRET={{ op://Developer Secrets/GoDaddyGoply/secret }}
