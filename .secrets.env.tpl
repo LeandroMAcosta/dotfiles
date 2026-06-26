@@ -3,6 +3,7 @@ export GRAFANA_API_KEY={{ op://Developer Secrets/Grafana/credential }}
 export AZURE_DEVOPS_EXT_PAT={{ op://Developer Secrets/Azure DevOps/credential }}
 export MP_CLIENT_ID={{ op://Developer Secrets/MercadoPago/client_id }}
 export MP_CLIENT_SECRET={{ op://Developer Secrets/MercadoPago/client_secret }}
+export MERCADO_PAGO_MCP_ACCESS_TOKEN={{ op://Developer Secrets/MercadoPago/mcp_access_token }}
 export CLOUDFLARE_API_TOKEN={{ op://Developer Secrets/Cloudflare/credential }}
 export ANTHROPIC_API_KEY={{ op://Developer Secrets/Anthropic/credential }}
 export ENGBIM_BITBUCKET_TOKEN={{ op://Developer Secrets/Bitbucket ENGBIM API Token/credential }}
