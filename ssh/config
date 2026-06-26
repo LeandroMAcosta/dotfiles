@@ -15,5 +15,14 @@ Host ssh.dev.azure.com-mediapro
   HostkeyAlgorithms +ssh-rsa
   PubkeyAcceptedAlgorithms +ssh-rsa
 
+Host bitbucket.org
+  HostName bitbucket.org
+  User git
+  # Local key fetched from 1Password by install.sh; bypass the 1Password SSH
+  # agent so commits/pushes never trigger a per-use approval prompt.
+  IdentityFile ~/.ssh/id_ed25519_engbim
+  IdentitiesOnly yes
+  IdentityAgent none
+
 Host *
   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"

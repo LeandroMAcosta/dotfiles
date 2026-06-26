@@ -87,19 +87,21 @@ if [[ -d "$DOTFILES_DIR/git" ]]; then
   copy_file "$DOTFILES_DIR/git/gitconfig-mediapro"  "$HOME/.gitconfig-mediapro"
 fi
 
-# GitHub SSH key (referenced by ~/.ssh/config IdentityFile for github.com).
-# Stored in 1Password but written to disk so commits/pushes use the local key
-# directly and never trigger a per-use 1Password SSH agent approval prompt.
+# GitHub (github.com) + Bitbucket (bitbucket.org) SSH keys. Stored in 1Password
+# but written to disk so commits/pushes use the local key directly (see the
+# IdentityAgent none entries in ~/.ssh/config) and never trigger a per-use
+# 1Password SSH agent approval prompt.
 if command -v op &>/dev/null && op account list &>/dev/null 2>&1; then
-  gh_key="$HOME/.ssh/id_ed25519_leacosta97"
-  if [[ ! -f "$gh_key" ]]; then
-    op read "op://Developer Secrets/id_ed25519_leacosta97/private key?ssh-format=openssh" > "$gh_key" 2>/dev/null \
-      && chmod 600 "$gh_key" \
-      && op item get "id_ed25519_leacosta97" --vault "Developer Secrets" \
-           --fields label="public key" --reveal 2>/dev/null | tr -d '"' > "$gh_key.pub" \
-      && chmod 644 "$gh_key.pub" \
-      && echo "  Wrote GitHub SSH key from 1Password"
-  fi
+  for key_item in id_ed25519_leacosta97 id_ed25519_engbim; do
+    key_path="$HOME/.ssh/$key_item"
+    [[ -f "$key_path" ]] && continue
+    op read "op://Developer Secrets/$key_item/private key?ssh-format=openssh" > "$key_path" 2>/dev/null \
+      && chmod 600 "$key_path" \
+      && op item get "$key_item" --vault "Developer Secrets" \
+           --fields label="public key" --reveal 2>/dev/null | tr -d '"' > "$key_path.pub" \
+      && chmod 644 "$key_path.pub" \
+      && echo "  Wrote SSH key $key_item from 1Password"
+  done
 fi
 
 # MediaPro SSH public key (referenced by ~/.ssh/config IdentityFile).
