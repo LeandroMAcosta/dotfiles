@@ -7,7 +7,10 @@ fi
 export PATH="$HOME/bin:$PATH"
 
 # Auto-start tmux (must be before p10k instant prompt to avoid warnings)
-if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [[ -o interactive ]] && [ -z "$SSH_CONNECTION" ] && [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM_PROGRAM" != "WarpTerminal" ]; then
+# Whitelist standalone terminals only — Electron-based apps (VSCode, Warp, Orca,
+# Cursor, etc.) embed shells and would all attach to the same session, causing
+# duplication and tmux client size conflicts.
+if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [[ -o interactive ]] && [ -z "$SSH_CONNECTION" ] && [ "$TERM_PROGRAM" = "iTerm.app" ]; then
   exec tmux new-session -A -s main
 fi
 
@@ -181,18 +184,24 @@ load-secrets() {
   done
 }
 
-# Load secrets from 1Password, cached for 24h to avoid repeated macOS TCC prompts.
-# Skipped inside Claude Code (shell snapshot has no chpwd/hook context).
+# Load all 1Password API keys from a global cache, refreshed at most once/24h.
+# The cache is the only thing that touches 1Password, so it triggers the
+# "Orca Helper / 1Password CLI access" prompt at most once per day instead of
+# on every commit, push, or new terminal.
+_secrets_cache="${XDG_CACHE_HOME:-$HOME/.cache}/secrets.env"
+_secrets_ttl=86400
+# Refresh via 1Password only outside Claude Code (needs interactive Touch ID)
+# and only when the cache is missing or stale.
 if [[ -z "${CLAUDECODE:-}" ]]; then
-  _secrets_cache="${XDG_CACHE_HOME:-$HOME/.cache}/secrets.env"
-  _secrets_ttl=86400
   if [[ ! -f "$_secrets_cache" ]] || \
      (( $(date +%s) - $(stat -f %m "$_secrets_cache" 2>/dev/null || echo 0) > _secrets_ttl )); then
     op inject -i ~/.secrets.env.tpl 2>/dev/null > "$_secrets_cache" && chmod 600 "$_secrets_cache"
   fi
-  [[ -f "$_secrets_cache" ]] && source "$_secrets_cache"
-  unset _secrets_cache _secrets_ttl
 fi
+# Source the cached secrets in every terminal (Claude Code included). Reading
+# the cache file never calls 1Password, so it never prompts.
+[[ -f "$_secrets_cache" ]] && source "$_secrets_cache"
+unset _secrets_cache _secrets_ttl
 
 # zoxide: smarter cd (MUST be at the end of this file — zoxide hooks chpwd
 # and needs to install after any other tool that might touch that hook).
