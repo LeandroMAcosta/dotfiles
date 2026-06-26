@@ -7,14 +7,6 @@ Host github.com
   IdentitiesOnly yes
   IdentityAgent none
 
-Host ssh.dev.azure.com-mediapro
-  HostName ssh.dev.azure.com
-  User git
-  IdentityFile ~/.ssh/mediapro_azure.pub
-  IdentitiesOnly yes
-  HostkeyAlgorithms +ssh-rsa
-  PubkeyAcceptedAlgorithms +ssh-rsa
-
 Host bitbucket.org
   HostName bitbucket.org
   User git

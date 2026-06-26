@@ -80,11 +80,9 @@ echo "  Merged SSH config"
 mkdir -p "$HOME/.aws"
 copy_file "$DOTFILES_DIR/aws/config" "$HOME/.aws/config"
 
-# Git config (main + scoped includeIf files). No credentials.
+# Git config (main only, no credentials).
 if [[ -d "$DOTFILES_DIR/git" ]]; then
-  copy_file "$DOTFILES_DIR/git/gitconfig"           "$HOME/.gitconfig"
-  copy_file "$DOTFILES_DIR/git/gitconfig-improving" "$HOME/.gitconfig-improving"
-  copy_file "$DOTFILES_DIR/git/gitconfig-mediapro"  "$HOME/.gitconfig-mediapro"
+  copy_file "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
 fi
 
 # GitHub (github.com) + Bitbucket (bitbucket.org) SSH keys. Stored in 1Password
@@ -102,17 +100,6 @@ if command -v op &>/dev/null && op account list &>/dev/null 2>&1; then
       && chmod 644 "$key_path.pub" \
       && echo "  Wrote SSH key $key_item from 1Password"
   done
-fi
-
-# MediaPro SSH public key (referenced by ~/.ssh/config IdentityFile).
-# The private key lives only in 1Password SSH agent.
-if command -v op &>/dev/null && op account list &>/dev/null 2>&1; then
-  if [[ ! -f "$HOME/.ssh/mediapro_azure.pub" ]]; then
-    op item get "Azure DevOps - MediaPro" --vault "Developer Secrets" \
-      --fields label="public key" --reveal > "$HOME/.ssh/mediapro_azure.pub" 2>/dev/null \
-      && chmod 644 "$HOME/.ssh/mediapro_azure.pub" \
-      && echo "  Wrote MediaPro SSH public key from 1Password"
-  fi
 fi
 
 # Copy everything in config/ to ~/.config/
