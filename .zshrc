@@ -203,6 +203,15 @@ fi
 [[ -f "$_secrets_cache" ]] && source "$_secrets_cache"
 unset _secrets_cache _secrets_ttl
 
+# Orca.app is a GUI app launched outside the shell, so it can't see these
+# exports. Push its Bitbucket integration vars into the launchd user session
+# (idempotent) so Orca picks them up; opening any terminal keeps them current.
+if [[ -n "${ORCA_BITBUCKET_API_TOKEN:-}" \
+   && "$(launchctl getenv ORCA_BITBUCKET_API_TOKEN)" != "$ORCA_BITBUCKET_API_TOKEN" ]]; then
+  launchctl setenv ORCA_BITBUCKET_EMAIL "$ORCA_BITBUCKET_EMAIL"
+  launchctl setenv ORCA_BITBUCKET_API_TOKEN "$ORCA_BITBUCKET_API_TOKEN"
+fi
+
 # zoxide: smarter cd (MUST be at the end of this file — zoxide hooks chpwd
 # and needs to install after any other tool that might touch that hook).
 # Skipped inside Claude Code: its shell snapshot loses chpwd_functions registration.

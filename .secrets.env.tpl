@@ -8,6 +8,9 @@ export ANTHROPIC_API_KEY={{ op://Developer Secrets/Anthropic/credential }}
 export ENGBIM_BITBUCKET_TOKEN={{ op://Developer Secrets/Bitbucket ENGBIM API Token/credential }}
 export ENGBIM_BITBUCKET_USERNAME={{ op://Developer Secrets/Bitbucket ENGBIM API Token/username }}
 export ENGBIM_BITBUCKET_WORKSPACE={{ op://Developer Secrets/Bitbucket ENGBIM API Token/workspace }}
+# Orca Bitbucket integration (PRs + build statuses). Read by Orca.app via env.
+export ORCA_BITBUCKET_EMAIL={{ op://Developer Secrets/Bitbucket ENGBIM API Token/username }}
+export ORCA_BITBUCKET_API_TOKEN={{ op://Developer Secrets/Bitbucket ENGBIM API Token/credential }}
 export ZAI_API_KEY={{ op://Developer Secrets/ZAI Coding/credential }}
 export OPENROUTER_API_KEY={{ op://Developer Secrets/OpenRouter/credential }}
 export GODADDY_API_KEY={{ op://Developer Secrets/GoDaddy/credential }}
