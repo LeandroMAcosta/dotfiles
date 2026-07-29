@@ -6,8 +6,8 @@ echo "==> Applying macOS defaults..."
 # --- Finder ---
 # Disable full POSIX path in title bar
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool false
-# Show all file extensions
-defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+# Hide file extensions (keeps .app etc. hidden in Finder and Spotlight)
+defaults write NSGlobalDomain AppleShowAllExtensions -bool false
 # Show hidden files
 defaults write com.apple.finder AppleShowAllFiles -bool true
 # Show path bar at the bottom
