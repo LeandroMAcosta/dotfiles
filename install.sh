@@ -56,6 +56,14 @@ copy_file "$DOTFILES_DIR/.zshrc"   "$HOME/.zshrc"
 copy_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 copy_file "$DOTFILES_DIR/.secrets.env.tpl" "$HOME/.secrets.env.tpl"
 
+# Local plaintext secrets file, kept out of the repo. Create it empty with tight
+# perms if missing so ~/.zshrc can source it; user fills it in by hand.
+if [[ ! -f "$HOME/.secrets" ]]; then
+  printf '# Local plaintext secrets — never committed. chmod 600. export VAR=value\n' > "$HOME/.secrets"
+  chmod 600 "$HOME/.secrets"
+  echo "  Created empty ~/.secrets (fill in by hand, never committed)"
+fi
+
 # SSH config (merge: dotfiles entries first, then append local-only hosts)
 mkdir -p "$HOME/.ssh"
 if [[ -f "$HOME/.ssh/config" ]]; then

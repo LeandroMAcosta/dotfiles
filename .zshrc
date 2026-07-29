@@ -203,6 +203,12 @@ fi
 [[ -f "$_secrets_cache" ]] && source "$_secrets_cache"
 unset _secrets_cache _secrets_ttl
 
+# Local plaintext secrets, deliberately kept OUT of the dotfiles repo (never
+# committed; lives only in $HOME). For credentials you want stored outside
+# 1Password. Sourced last so it can override cached values. chmod 600.
+# Create with: touch ~/.secrets && chmod 600 ~/.secrets
+[[ -f "$HOME/.secrets" ]] && source "$HOME/.secrets"
+
 # Orca.app is a GUI app launched outside the shell, so it can't see these
 # exports. Push its Bitbucket integration vars into the launchd user session
 # (idempotent) so Orca picks them up; opening any terminal keeps them current.
