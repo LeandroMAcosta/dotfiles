@@ -46,6 +46,8 @@ defaults write com.apple.dock autohide-time-modifier -float 0.3
 defaults write com.apple.dock minimize-to-application -bool true
 # Don't show recent apps in Dock
 defaults write com.apple.dock show-recents -bool false
+# Don't rearrange Spaces based on most recent use
+defaults write com.apple.dock mru-spaces -bool false
 
 # --- Screenshots ---
 # Save screenshots to ~/Screenshots
