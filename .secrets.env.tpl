@@ -4,6 +4,8 @@ export MP_CLIENT_ID={{ op://Developer Secrets/MercadoPago/client_id }}
 export MP_CLIENT_SECRET={{ op://Developer Secrets/MercadoPago/client_secret }}
 export MERCADO_PAGO_MCP_ACCESS_TOKEN={{ op://Developer Secrets/MercadoPago/mcp_access_token }}
 export CLOUDFLARE_API_TOKEN={{ op://Developer Secrets/Cloudflare/credential }}
+# Cuenta running labs (la personal no la ve). Se usa con el helper wrangler-rl.
+export CLOUDFLARE_API_TOKEN_RUNNING_LABS={{ op://Developer Secrets/Cloudflare Running Labs/credential }}
 export ANTHROPIC_API_KEY={{ op://Developer Secrets/Anthropic/credential }}
 export ENGBIM_BITBUCKET_TOKEN={{ op://Developer Secrets/Bitbucket ENGBIM API Token/credential }}
 export ENGBIM_BITBUCKET_USERNAME={{ op://Developer Secrets/Bitbucket ENGBIM API Token/username }}

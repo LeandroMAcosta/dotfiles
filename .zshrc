@@ -218,6 +218,17 @@ if [[ -n "${ORCA_BITBUCKET_API_TOKEN:-}" \
   launchctl setenv ORCA_BITBUCKET_API_TOKEN "$ORCA_BITBUCKET_API_TOKEN"
 fi
 
+# wrangler contra la cuenta de Cloudflare "running labs". Hace falta porque
+# wrangler prioriza CLOUDFLARE_API_TOKEN sobre el login OAuth, y el token del
+# vault es de la cuenta personal (solo ve esquel.dev).
+wrangler-rl() {
+  if [[ -z "${CLOUDFLARE_API_TOKEN_RUNNING_LABS:-}" ]]; then
+    print -u2 "wrangler-rl: falta CLOUDFLARE_API_TOKEN_RUNNING_LABS (rm ~/.cache/secrets.env y abrí una terminal nueva)"
+    return 1
+  fi
+  CLOUDFLARE_API_TOKEN="$CLOUDFLARE_API_TOKEN_RUNNING_LABS" npx wrangler "$@"
+}
+
 # zoxide: smarter cd (MUST be at the end of this file — zoxide hooks chpwd
 # and needs to install after any other tool that might touch that hook).
 # Skipped inside Claude Code: its shell snapshot loses chpwd_functions registration.
