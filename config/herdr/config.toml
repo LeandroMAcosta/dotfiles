@@ -20,24 +20,46 @@ shell_mode = "login"
 # New panes inherit the cwd of the pane they were created from.
 new_cwd = "follow"
 
-# Prefix is ctrl+a to match the tmux prefix, so muscle memory carries over.
-# herdr's own default is ctrl+b, so docs and tutorials will say ctrl+b; prefix+?
-# always lists what is actually bound. Never run herdr inside tmux with this set,
-# since both would answer to ctrl+a.
+# i3-style direct bindings: hold alt and press, no prefix tap first. alt is the
+# $mod equivalent, matching the tilish bindings already used in tmux.
 #
-# Each action keeps its prefix binding and gains a prefix-free ctrl+alt chord
-# (the setup vetted in the herdr keyboard docs). ctrl+alt is used rather than
-# plain alt because on macOS plain alt composes accented characters instead of
-# sending a modifier; ctrl+alt transmits reliably.
+# alt+ chords are only reliable because macos.sh sets iTerm's Option Key Sends
+# to Esc+ on both Option keys. Without that, macOS composes accented characters
+# instead of sending a modifier and none of these fire.
+#
+# Every action also keeps its prefix binding (ctrl+a) as a fallback path, so a
+# chord that collides with something else is never the only way in.
+# prefix+? lists whatever is actually bound.
 [keys]
 prefix = "ctrl+a"
-focus_pane_left = ["prefix+h", "ctrl+alt+h"]
-focus_pane_down = ["prefix+j", "ctrl+alt+j"]
-focus_pane_up = ["prefix+k", "ctrl+alt+k"]
-focus_pane_right = ["prefix+l", "ctrl+alt+l"]
-previous_tab = ["prefix+p", "ctrl+alt+["]
-next_tab = ["prefix+n", "ctrl+alt+]"]
-new_tab = ["prefix+c", "ctrl+alt+c"]
-split_vertical = ["prefix+v", "ctrl+alt+d"]
-split_horizontal = ["prefix+minus", "ctrl+alt+shift+d"]
-zoom = ["prefix+z", "ctrl+alt+z"]
+
+# Focus panes — i3 $mod+h/j/k/l
+focus_pane_left = ["prefix+h", "alt+h"]
+focus_pane_down = ["prefix+j", "alt+j"]
+focus_pane_up = ["prefix+k", "alt+k"]
+focus_pane_right = ["prefix+l", "alt+l"]
+
+# Splits — i3 $mod+v
+split_vertical = ["prefix+v", "alt+v"]
+split_horizontal = ["prefix+minus", "alt+minus"]
+
+# Tabs behave like i3 workspaces — $mod+1..9
+switch_tab = ["prefix+1..9", "alt+1..9"]
+new_tab = ["prefix+c", "alt+enter"]
+next_tab = ["prefix+n", "alt+]"]
+previous_tab = ["prefix+p", "alt+["]
+close_tab = ["prefix+shift+x", "alt+shift+x"]
+
+# Panes — i3 $mod+shift+q kills, $mod+f fullscreens, $mod+r resizes
+close_pane = ["prefix+x", "alt+shift+q"]
+zoom = ["prefix+z", "alt+z"]
+resize_mode = ["prefix+r", "alt+r"]
+
+# Workspaces
+workspace_picker = ["prefix+w", "alt+w"]
+new_workspace = ["prefix+shift+n", "alt+shift+n"]
+switch_workspace = ["prefix+shift+1..9", "alt+shift+1..9"]
+
+# Misc — i3 $mod+shift+c reloads config
+toggle_sidebar = ["prefix+b", "alt+shift+b"]
+reload_config = ["prefix+shift+r", "alt+shift+c"]
