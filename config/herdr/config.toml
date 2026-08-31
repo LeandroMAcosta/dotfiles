@@ -1,0 +1,40 @@
+# herdr configuration
+# Deployed to ~/.config/herdr/config.toml by install.sh
+# Full default reference: herdr --default-config
+# Apply edits to a running server with: herdr server reload-config
+
+[theme]
+# Matches the Catppuccin theme used by the tmux status bar.
+name = "catppuccin"
+
+# Follow iTerm's light/dark appearance instead of pinning one theme.
+auto_switch = true
+dark_name = "catppuccin"
+light_name = "catppuccin-latte"
+
+[terminal]
+# Login shells so panes get the full environment (PATH, 1Password plugins,
+# secrets.env). "auto" already does this on macOS; pinned for clarity.
+shell_mode = "login"
+
+# New panes inherit the cwd of the pane they were created from.
+new_cwd = "follow"
+
+# Prefix stays at the herdr default (ctrl+b) so the docs, prefix+? and every
+# tutorial match what is actually bound here.
+#
+# Each action keeps its prefix binding and gains a prefix-free ctrl+alt chord
+# (the setup vetted in the herdr keyboard docs). ctrl+alt is used rather than
+# plain alt because on macOS plain alt composes accented characters instead of
+# sending a modifier; ctrl+alt transmits reliably.
+[keys]
+focus_pane_left = ["prefix+h", "ctrl+alt+h"]
+focus_pane_down = ["prefix+j", "ctrl+alt+j"]
+focus_pane_up = ["prefix+k", "ctrl+alt+k"]
+focus_pane_right = ["prefix+l", "ctrl+alt+l"]
+previous_tab = ["prefix+p", "ctrl+alt+["]
+next_tab = ["prefix+n", "ctrl+alt+]"]
+new_tab = ["prefix+c", "ctrl+alt+c"]
+split_vertical = ["prefix+v", "ctrl+alt+d"]
+split_horizontal = ["prefix+minus", "ctrl+alt+shift+d"]
+zoom = ["prefix+z", "ctrl+alt+z"]

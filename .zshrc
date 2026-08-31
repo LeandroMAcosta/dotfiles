@@ -10,7 +10,9 @@ export PATH="$HOME/bin:$PATH"
 # Whitelist standalone terminals only — Electron-based apps (VSCode, Warp, Orca,
 # Cursor, etc.) embed shells and would all attach to the same session, causing
 # duplication and tmux client size conflicts.
-if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [[ -o interactive ]] && [ -z "$SSH_CONNECTION" ] && [ "$TERM_PROGRAM" = "iTerm.app" ]; then
+# NO_TMUX=1 opts out. The "herdr" iTerm profile sets it so herdr and every pane
+# shell it spawns inherit it — otherwise each herdr pane would exec tmux here.
+if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [ -z "$NO_TMUX" ] && [[ -o interactive ]] && [ -z "$SSH_CONNECTION" ] && [ "$TERM_PROGRAM" = "iTerm.app" ]; then
   exec tmux new-session -A -s main
 fi
 

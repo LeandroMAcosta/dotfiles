@@ -80,6 +80,28 @@ for p in data.get("New Bookmarks", []):
 sys.stdout.buffer.write(plistlib.dumps(data))
 ' | defaults import com.googlecode.iterm2 -
   echo "  iTerm2: Option=Esc+, font=MesloLGS NF (restart iTerm to apply)"
+
+  # Add a "herdr" profile that launches herdr instead of the tmux-wrapped shell.
+  # NO_TMUX=1 is set on herdr itself so every pane shell it spawns inherits it,
+  # otherwise each pane would hit the auto-start tmux block in .zshrc.
+  # Idempotent: skipped if a profile named "herdr" already exists.
+  defaults export com.googlecode.iterm2 - | python3 -c '
+import sys, plistlib, copy, uuid
+data = plistlib.loads(sys.stdin.buffer.read())
+profiles = data.get("New Bookmarks", [])
+if profiles and not any(p.get("Name") == "herdr" for p in profiles):
+    default_guid = data.get("Default Bookmark Guid")
+    base = next((p for p in profiles if p.get("Guid") == default_guid), profiles[0])
+    herdr = copy.deepcopy(base)
+    herdr["Name"] = "herdr"
+    herdr["Guid"] = str(uuid.uuid4()).upper()
+    herdr["Custom Command"] = "Yes"
+    herdr["Command"] = "/usr/bin/env NO_TMUX=1 /opt/homebrew/bin/herdr"
+    profiles.append(herdr)
+    data["New Bookmarks"] = profiles
+sys.stdout.buffer.write(plistlib.dumps(data))
+' | defaults import com.googlecode.iterm2 -
+  echo "  iTerm2: herdr profile added (restart iTerm to apply)"
 fi
 
 # --- Restart affected apps ---
