@@ -111,12 +111,25 @@ if command -v op &>/dev/null && op account list &>/dev/null 2>&1; then
 fi
 
 # Copy everything in config/ to ~/.config/
+# herdr is skipped here on purpose: copy_file does `rm -rf` on a directory
+# destination, and herdr keeps its runtime socket (herdr.sock) and session
+# state inside ~/.config/herdr. A directory copy therefore kills the running
+# server and detaches every pane. Its config.toml is copied as a single file
+# below instead. Same hazard as TPM above.
 if [[ -d "$DOTFILES_DIR/config" ]]; then
   for dir in "$DOTFILES_DIR/config"/*/; do
     dir_name="$(basename "$dir")"
+    [[ "$dir_name" == "herdr" ]] && continue
     mkdir -p "$HOME/.config"
     copy_file "$DOTFILES_DIR/config/$dir_name" "$HOME/.config/$dir_name"
   done
+fi
+
+if [[ -f "$DOTFILES_DIR/config/herdr/config.toml" ]]; then
+  mkdir -p "$HOME/.config/herdr"
+  copy_file "$DOTFILES_DIR/config/herdr/config.toml" "$HOME/.config/herdr/config.toml"
+  # Apply to a running server if there is one; a no-op when there is not.
+  command -v herdr &>/dev/null && herdr server reload-config &>/dev/null || true
 fi
 
 # --- Herdr agent integrations ---
