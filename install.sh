@@ -119,6 +119,23 @@ if [[ -d "$DOTFILES_DIR/config" ]]; then
   done
 fi
 
+# --- Herdr agent integrations ---
+# Reinstalled after the config copy on purpose: copy_file does `rm -rf` on
+# directory targets, so copying config/opencode/ wipes the herdr plugin that
+# lives at ~/.config/opencode/plugins/herdr-agent-state.js. Regenerating beats
+# vendoring the file, since herdr versions the hook alongside its binary.
+# Only agents present on PATH are installed; herdr skips ones already current.
+if command -v herdr &> /dev/null; then
+  echo "==> Installing herdr agent integrations..."
+  for agent in claude codex opencode; do
+    if command -v "$agent" &> /dev/null; then
+      herdr integration install "$agent" >/dev/null 2>&1 \
+        && echo "  herdr integration: $agent" \
+        || echo "  herdr integration: $agent FAILED (run manually to see why)"
+    fi
+  done
+fi
+
 # --- Install tmux plugins (only if missing) ---
 # TPM honours XDG: when ~/.config/tmux/tmux.conf exists, plugins live in
 # ~/.config/tmux/plugins/ instead of ~/.tmux/plugins/.
@@ -175,6 +192,11 @@ if [[ -d "$DOTFILES_DIR/claude" ]]; then
   mkdir -p "$HOME/.claude"
   copy_file "$DOTFILES_DIR/claude/CLAUDE.md"      "$HOME/.claude/CLAUDE.md"
   copy_file "$DOTFILES_DIR/claude/settings.json"   "$HOME/.claude/settings.json"
+
+  # Status line script referenced by settings.json ("statusLine"). Needs the
+  # exec bit; copy_file does not preserve it.
+  copy_file "$DOTFILES_DIR/claude/statusline.sh"  "$HOME/.claude/statusline.sh"
+  chmod +x "$HOME/.claude/statusline.sh"
 
   if [[ -d "$DOTFILES_DIR/claude/rules" ]]; then
     mkdir -p "$HOME/.claude/rules"
