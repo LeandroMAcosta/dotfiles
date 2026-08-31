@@ -20,14 +20,17 @@ shell_mode = "login"
 # New panes inherit the cwd of the pane they were created from.
 new_cwd = "follow"
 
-# Prefix stays at the herdr default (ctrl+b) so the docs, prefix+? and every
-# tutorial match what is actually bound here.
+# Prefix is ctrl+a to match the tmux prefix, so muscle memory carries over.
+# herdr's own default is ctrl+b, so docs and tutorials will say ctrl+b; prefix+?
+# always lists what is actually bound. Never run herdr inside tmux with this set,
+# since both would answer to ctrl+a.
 #
 # Each action keeps its prefix binding and gains a prefix-free ctrl+alt chord
 # (the setup vetted in the herdr keyboard docs). ctrl+alt is used rather than
 # plain alt because on macOS plain alt composes accented characters instead of
 # sending a modifier; ctrl+alt transmits reliably.
 [keys]
+prefix = "ctrl+a"
 focus_pane_left = ["prefix+h", "ctrl+alt+h"]
 focus_pane_down = ["prefix+j", "ctrl+alt+j"]
 focus_pane_up = ["prefix+k", "ctrl+alt+k"]
