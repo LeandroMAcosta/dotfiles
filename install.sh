@@ -128,6 +128,17 @@ fi
 if [[ -f "$DOTFILES_DIR/config/herdr/config.toml" ]]; then
   mkdir -p "$HOME/.config/herdr"
   copy_file "$DOTFILES_DIR/config/herdr/config.toml" "$HOME/.config/herdr/config.toml"
+  # The alt+1..9 keys.command entries need an absolute path; herdr does not
+  # expand ~ or $HOME inside them. Substituted at deploy time, which is why the
+  # repo copy carries the __HOME__ placeholder.
+  sed -i '' "s|__HOME__|$HOME|g" "$HOME/.config/herdr/config.toml"
+
+  # Helper invoked by those bindings. Needs the exec bit; copy_file drops it.
+  if [[ -f "$DOTFILES_DIR/config/herdr/goto-tab.sh" ]]; then
+    copy_file "$DOTFILES_DIR/config/herdr/goto-tab.sh" "$HOME/.config/herdr/goto-tab.sh"
+    chmod +x "$HOME/.config/herdr/goto-tab.sh"
+  fi
+
   # Apply to a running server if there is one; a no-op when there is not.
   command -v herdr &>/dev/null && herdr server reload-config &>/dev/null || true
 fi

@@ -42,7 +42,8 @@ brew bundle dump --file=~/dotfiles/Brewfile --force
 | `.zshrc` | `~/.zshrc` | Oh My Zsh with Powerlevel10k, fzf and zoxide integration. Starts no multiplexer — the iTerm profile decides |
 | `config/tmux/tmux.conf` | `~/.config/tmux/tmux.conf` | Prefix is `C-a`, uses TPM + tilish (i3-style) |
 | `config/nvim/` | `~/.config/nvim/` | LazyVim starter. `lazyvim.json` (enabled extras) and `lazy-lock.json` (pinned plugin commits) are tracked, so a fresh machine gets the same plugin set. After `:Lazy update` or enabling an extra, copy both back into the repo or the next `./install.sh` reverts them |
-| `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Prefix `C-a`, i3-style `alt` chords. Copied as a single file, not as a directory — see the `rm -rf` warning above |
+| `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Prefix `C-a`, i3-style `alt` chords. Copied as a single file, not as a directory — see the `rm -rf` warning above. `__HOME__` in it is replaced with `$HOME` at deploy time, because herdr does not expand `~` inside `keys.command` |
+| `config/herdr/goto-tab.sh` | `~/.config/herdr/goto-tab.sh` | Backs the `alt+1..9` bindings: focuses tab N, creating tabs up to N when it does not exist. herdr's own `switch_tab` is a no-op for a missing tab, so `alt+1..9` is bound to this instead of `switch_tab` |
 | `config/yazi/` | `~/.config/yazi/` | File manager. Catppuccin flavors are vendored under `flavors/` so `install.sh` restores them |
 | `config/ghostty/config` | `~/.config/ghostty/config` | Alternative terminal, installed alongside iTerm. `macos-option-as-alt` is the equivalent of iTerm's Option=Esc+ and the herdr `alt` chords need it |
 | `claude/` | `~/.claude/` | Global `CLAUDE.md`, `settings.json`, rules, contexts, `statusline.sh` |

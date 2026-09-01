@@ -58,8 +58,12 @@ resize_pane_right = "alt+shift+right"
 split_vertical = ["prefix+v", "alt+v"]
 split_horizontal = ["prefix+minus", "alt+minus"]
 
-# Tabs behave like i3 workspaces — $mod+1..9
-switch_tab = ["prefix+1..9", "alt+1..9"]
+# Tabs behave like i3 workspaces — $mod+1..9.
+# alt+1..9 is not bound here: herdr's switch_tab does nothing when the tab does
+# not exist yet, while i3 creates the workspace on demand. The [[keys.command]]
+# blocks at the end of this file bind alt+1..9 to goto-tab.sh, which focuses
+# the tab or creates it first. prefix+1..9 keeps the plain built-in behaviour.
+switch_tab = "prefix+1..9"
 new_tab = ["prefix+c", "alt+enter"]
 next_tab = ["prefix+n", "alt+]"]
 previous_tab = ["prefix+p", "alt+["]
@@ -78,3 +82,52 @@ switch_workspace = ["prefix+shift+1..9", "alt+shift+1..9"]
 # Misc — i3 $mod+shift+c reloads config
 toggle_sidebar = ["prefix+b", "alt+shift+b"]
 reload_config = ["prefix+shift+r", "alt+shift+c"]
+
+# alt+1..9 — go to tab N, creating it when it is missing (see switch_tab above).
+# type = "shell" runs detached, so no pane flashes up. __HOME__ is replaced with
+# the real home directory by install.sh when it deploys this file.
+
+[[keys.command]]
+key = "alt+1"
+type = "shell"
+command = "__HOME__/.config/herdr/goto-tab.sh 1"
+
+[[keys.command]]
+key = "alt+2"
+type = "shell"
+command = "__HOME__/.config/herdr/goto-tab.sh 2"
+
+[[keys.command]]
+key = "alt+3"
+type = "shell"
+command = "__HOME__/.config/herdr/goto-tab.sh 3"
+
+[[keys.command]]
+key = "alt+4"
+type = "shell"
+command = "__HOME__/.config/herdr/goto-tab.sh 4"
+
+[[keys.command]]
+key = "alt+5"
+type = "shell"
+command = "__HOME__/.config/herdr/goto-tab.sh 5"
+
+[[keys.command]]
+key = "alt+6"
+type = "shell"
+command = "__HOME__/.config/herdr/goto-tab.sh 6"
+
+[[keys.command]]
+key = "alt+7"
+type = "shell"
+command = "__HOME__/.config/herdr/goto-tab.sh 7"
+
+[[keys.command]]
+key = "alt+8"
+type = "shell"
+command = "__HOME__/.config/herdr/goto-tab.sh 8"
+
+[[keys.command]]
+key = "alt+9"
+type = "shell"
+command = "__HOME__/.config/herdr/goto-tab.sh 9"
