@@ -31,16 +31,28 @@ brew bundle dump --file=~/dotfiles/Brewfile --force
 
 | File | Target | Notes |
 |------|--------|-------|
-| `.zshrc` | `~/.zshrc` | Auto-starts tmux, Oh My Zsh with Powerlevel10k, fzf and zoxide integration |
+| `.zshrc` | `~/.zshrc` | Oh My Zsh with Powerlevel10k, fzf and zoxide integration. Starts no multiplexer — the iTerm profile decides |
 | `config/tmux/tmux.conf` | `~/.config/tmux/tmux.conf` | Prefix is `C-a`, uses TPM + tilish (i3-style) |
 | `config/nvim/` | `~/.config/nvim/` | LazyVim starter (lazy.nvim bootstrap) |
 | `Brewfile` | N/A | Declarative list of brew packages, casks |
 
 ## iTerm2 prerequisite
 
-`macos.sh` automates two iTerm2 profile settings (restart iTerm to apply):
+`macos.sh` automates the iTerm2 setup (restart iTerm to apply).
+
+Applied to every profile:
 - **Option Key Sends = Esc+** on left + right Option, required so dead-key layouts (Spanish/Latin etc.) don't swallow tmux `Alt+letter` bindings (e.g. `Alt+N` rename-window).
 - **Font = MesloLGS Nerd Font Mono 13**, required by Powerlevel10k and the tmux Catppuccin status bar icons.
+
+It also syncs one profile per terminal mode. The profile chooses the multiplexer via its custom command, which is why `.zshrc` starts none — that keeps tmux and herdr pane shells from re-exec'ing a multiplexer, and leaves embedded shells (VSCode, Cursor, Orca) plain:
+
+| Profile | Command | Notes |
+|---------|---------|-------|
+| `Default` | *(none)* | Plain login shell. Stays iTerm's default profile |
+| `tmux` | `tmux new-session -A -s main` | Attaches to the shared `main` session, creating it if absent |
+| `herdr` | `herdr` | Launches the herdr terminal workspace manager |
+
+Binaries are resolved with `command -v`, so it works on ARM and Intel Homebrew. The sync is idempotent: missing profiles are created from the default profile, existing ones have their command refreshed, and a profile whose binary is absent is skipped rather than created broken.
 
 ## Conventions
 
