@@ -33,11 +33,19 @@ new_cwd = "follow"
 [keys]
 prefix = "ctrl+a"
 
-# Focus panes — i3 $mod+h/j/k/l
-focus_pane_left = ["prefix+h", "alt+h"]
-focus_pane_down = ["prefix+j", "alt+j"]
-focus_pane_up = ["prefix+k", "alt+k"]
-focus_pane_right = ["prefix+l", "alt+l"]
+# Focus panes. Arrow keys are the primary binding; h/j/k/l stay bound so the
+# vim-style shortcuts in the docs and in tmux still work, but nothing forces
+# their use.
+focus_pane_left = ["prefix+left", "alt+left", "prefix+h", "alt+h"]
+focus_pane_down = ["prefix+down", "alt+down", "prefix+j", "alt+j"]
+focus_pane_up = ["prefix+up", "alt+up", "prefix+k", "alt+k"]
+focus_pane_right = ["prefix+right", "alt+right", "prefix+l", "alt+l"]
+
+# Resize without entering resize mode (alt+r). Unset by default in herdr.
+resize_pane_left = "alt+shift+left"
+resize_pane_down = "alt+shift+down"
+resize_pane_up = "alt+shift+up"
+resize_pane_right = "alt+shift+right"
 
 # Splits — i3 $mod+v
 split_vertical = ["prefix+v", "alt+v"]
