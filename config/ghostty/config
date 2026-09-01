@@ -26,6 +26,15 @@ macos-option-as-alt = true
 # from fighting Powerlevel10k's own prompt setup.
 shell-integration = detect
 
+# Ghostty binds alt+arrow_left/right to esc:b / esc:f (readline word movement)
+# by default, and swallows them before the running program sees them. That
+# breaks herdr's alt+left / alt+right pane focus, while alt+up / alt+down work
+# because Ghostty has no default bind for those. Release both.
+# Nothing is lost: Oh My Zsh already binds word movement on ctrl+left/right
+# ("^[[1;5D"/"^[[1;5C") and on alt+b / alt+f ("^[b"/"^[f").
+keybind = alt+arrow_left=unbind
+keybind = alt+arrow_right=unbind
+
 # --- Window -------------------------------------------------------------
 # Do not restore panes from the previous run: tmux and herdr already persist
 # their own sessions, and restoring on top of them duplicates shells.
