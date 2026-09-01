@@ -41,6 +41,13 @@ focus_pane_down = ["prefix+down", "alt+down", "prefix+j", "alt+j"]
 focus_pane_up = ["prefix+up", "alt+up", "prefix+k", "alt+k"]
 focus_pane_right = ["prefix+right", "alt+right", "prefix+l", "alt+l"]
 
+# Jump back to the previously focused pane. Unset by default in herdr. With two
+# splits a toggle beats directional movement: one key, no thinking about which
+# way to go. prefix+; mirrors tmux's last-pane binding. Note prefix+prefix is
+# reserved by herdr (it sends a literal prefix key), so the tmux double-tap
+# idiom is not available here.
+last_pane = ["prefix+;", "alt+o"]
+
 # Resize without entering resize mode (alt+r). Unset by default in herdr.
 resize_pane_left = "alt+shift+left"
 resize_pane_down = "alt+shift+down"
