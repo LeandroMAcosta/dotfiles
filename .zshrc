@@ -244,6 +244,28 @@ y() {
   command rm -f -- "$tmp"
 }
 
+# Guard against `sudo nvim <file>`. Running the editor as root creates
+# root-owned files all over $HOME, and each one breaks something different and
+# silently: Mason packages in ~/.local/share/nvim (:MasonUpdate fails), the
+# shada and swap dirs in ~/.local/state/nvim (E886/E303 on startup), and the
+# Lua bytecode cache in ~/.cache/nvim (plugins fail to load with EACCES).
+# One `sudo nvim /etc/hosts` on 2026-08-04 caused all three.
+#
+# `sudo -e` copies the file to a temp path, opens it as THIS user with this
+# config, and writes the result back as root — nothing under $HOME is touched.
+# macOS ships no `sudoedit` binary, so the -e flag is the only form available.
+#
+# Deliberate bypass: command sudo nvim <file>
+sudo() {
+  if [[ "$1" == nvim || "$1" == vim || "$1" == vi ]]; then
+    shift
+    print -u2 "sudo: editing as root — using 'sudo -e' (bypass: command sudo nvim ...)"
+    command sudo -e "$@"
+    return $?
+  fi
+  command sudo "$@"
+}
+
 # zoxide: smarter cd (MUST be at the end of this file — zoxide hooks chpwd
 # and needs to install after any other tool that might touch that hook).
 # Skipped inside Claude Code: its shell snapshot loses chpwd_functions registration.
