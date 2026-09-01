@@ -1,0 +1,6 @@
+# Follows the terminal's light/dark appearance, matching the tmux status bar
+# and the herdr theme. Flavors are vendored under flavors/ so they survive
+# install.sh, which replaces this whole directory.
+[flavor]
+dark = "catppuccin-mocha"
+light = "catppuccin-latte"

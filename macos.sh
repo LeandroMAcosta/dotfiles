@@ -4,8 +4,8 @@ set -euo pipefail
 echo "==> Applying macOS defaults..."
 
 # --- Finder ---
-# Disable full POSIX path in title bar
-defaults write com.apple.finder _FXShowPosixPathInTitle -bool false
+# Show the full POSIX path in the title bar (/Users/x/dev, not just "dev")
+defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 # Hide file extensions (keeps .app etc. hidden in Finder and Spotlight)
 defaults write NSGlobalDomain AppleShowAllExtensions -bool false
 # Show hidden files
@@ -81,27 +81,47 @@ sys.stdout.buffer.write(plistlib.dumps(data))
 ' | defaults import com.googlecode.iterm2 -
   echo "  iTerm2: Option=Esc+, font=MesloLGS NF (restart iTerm to apply)"
 
-  # Add a "herdr" profile that launches herdr instead of the tmux-wrapped shell.
-  # NO_TMUX=1 is set on herdr itself so every pane shell it spawns inherits it,
-  # otherwise each pane would hit the auto-start tmux block in .zshrc.
-  # Idempotent: skipped if a profile named "herdr" already exists.
-  defaults export com.googlecode.iterm2 - | python3 -c '
-import sys, plistlib, copy, uuid
+  # One profile per terminal mode. The profile picks the multiplexer, not
+  # .zshrc, so a plain shell stays plain and tmux/herdr pane shells never
+  # re-exec a multiplexer:
+  #   Default — plain login shell (stays iTerm's default profile)
+  #   tmux    — attaches to the shared "main" session
+  #   herdr   — launches the herdr terminal workspace manager
+  # Binaries are resolved here so this works on both ARM and Intel Homebrew.
+  # Idempotent: missing profiles are created, existing ones have their command
+  # refreshed. A profile whose binary is absent is skipped, not created empty.
+  defaults export com.googlecode.iterm2 - \
+    | TMUX_BIN="$(command -v tmux || true)" HERDR_BIN="$(command -v herdr || true)" python3 -c '
+import sys, plistlib, copy, os, uuid
+
+wanted = {}
+if os.environ.get("TMUX_BIN"):
+    wanted["tmux"] = os.environ["TMUX_BIN"] + " new-session -A -s main"
+if os.environ.get("HERDR_BIN"):
+    wanted["herdr"] = os.environ["HERDR_BIN"]
+
 data = plistlib.loads(sys.stdin.buffer.read())
 profiles = data.get("New Bookmarks", [])
-if profiles and not any(p.get("Name") == "herdr" for p in profiles):
+if profiles:
     default_guid = data.get("Default Bookmark Guid")
     base = next((p for p in profiles if p.get("Guid") == default_guid), profiles[0])
-    herdr = copy.deepcopy(base)
-    herdr["Name"] = "herdr"
-    herdr["Guid"] = str(uuid.uuid4()).upper()
-    herdr["Custom Command"] = "Yes"
-    herdr["Command"] = "/usr/bin/env NO_TMUX=1 /opt/homebrew/bin/herdr"
-    profiles.append(herdr)
+    if base.get("Name") not in wanted:
+        base["Custom Command"] = "No"
+        base["Command"] = ""
+    by_name = {p.get("Name"): p for p in profiles}
+    for name, command in wanted.items():
+        profile = by_name.get(name)
+        if profile is None:
+            profile = copy.deepcopy(base)
+            profile["Name"] = name
+            profile["Guid"] = str(uuid.uuid4()).upper()
+            profiles.append(profile)
+        profile["Custom Command"] = "Yes"
+        profile["Command"] = command
     data["New Bookmarks"] = profiles
 sys.stdout.buffer.write(plistlib.dumps(data))
 ' | defaults import com.googlecode.iterm2 -
-  echo "  iTerm2: herdr profile added (restart iTerm to apply)"
+  echo "  iTerm2: Default/tmux/herdr profiles synced (restart iTerm to apply)"
 fi
 
 # --- Restart affected apps ---

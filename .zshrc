@@ -6,15 +6,11 @@ elif [[ -f /usr/local/bin/brew ]]; then
 fi
 export PATH="$HOME/bin:$PATH"
 
-# Auto-start tmux (must be before p10k instant prompt to avoid warnings)
-# Whitelist standalone terminals only — Electron-based apps (VSCode, Warp, Orca,
-# Cursor, etc.) embed shells and would all attach to the same session, causing
-# duplication and tmux client size conflicts.
-# NO_TMUX=1 opts out. The "herdr" iTerm profile sets it so herdr and every pane
-# shell it spawns inherit it — otherwise each herdr pane would exec tmux here.
-if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [ -z "$NO_TMUX" ] && [[ -o interactive ]] && [ -z "$SSH_CONNECTION" ] && [ "$TERM_PROGRAM" = "iTerm.app" ]; then
-  exec tmux new-session -A -s main
-fi
+# No multiplexer is started here on purpose — the iTerm profile decides which
+# one you get: "Default" is a plain login shell, "tmux" attaches to the shared
+# "main" session and "herdr" launches herdr (see macos.sh). Keeping the choice
+# out of .zshrc means tmux and herdr pane shells never re-exec a multiplexer,
+# and embedded shells (VSCode, Cursor, Orca) stay plain for free.
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -229,6 +225,18 @@ wrangler-rl() {
     return 1
   fi
   CLOUDFLARE_API_TOKEN="$CLOUDFLARE_API_TOKEN_RUNNING_LABS" npx wrangler "$@"
+}
+
+# yazi file manager. Wrapper so quitting with `q` leaves the shell in whatever
+# directory you browsed to; plain `yazi` always returns you where you started.
+# Upstream-recommended form: https://yazi-rs.github.io/docs/quick-start
+y() {
+  local tmp cwd
+  tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+  command yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+  command rm -f -- "$tmp"
 }
 
 # zoxide: smarter cd (MUST be at the end of this file — zoxide hooks chpwd
