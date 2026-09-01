@@ -44,6 +44,7 @@ brew bundle dump --file=~/dotfiles/Brewfile --force
 | `config/nvim/` | `~/.config/nvim/` | LazyVim starter (lazy.nvim bootstrap) |
 | `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Prefix `C-a`, i3-style `alt` chords. Copied as a single file, not as a directory — see the `rm -rf` warning above |
 | `config/yazi/` | `~/.config/yazi/` | File manager. Catppuccin flavors are vendored under `flavors/` so `install.sh` restores them |
+| `config/ghostty/config` | `~/.config/ghostty/config` | Alternative terminal, installed alongside iTerm. `macos-option-as-alt` is the equivalent of iTerm's Option=Esc+ and the herdr `alt` chords need it |
 | `claude/` | `~/.claude/` | Global `CLAUDE.md`, `settings.json`, rules, contexts, `statusline.sh` |
 | `Brewfile` | N/A | Declarative list of brew packages, casks |
 

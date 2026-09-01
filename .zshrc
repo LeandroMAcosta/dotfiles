@@ -127,6 +127,11 @@ source <(fzf --zsh 2>/dev/null)
 # Aliases
 alias reload='source ~/.zshrc && tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null; echo "All reloaded"'
 
+# Ghostty has no iTerm-style profiles, so the multiplexer is chosen at launch.
+# These open a NEW Ghostty window running one; a plain window stays a plain shell.
+alias tm='open -na Ghostty --args --command="tmux new-session -A -s main"'
+alias hd='open -na Ghostty --args --command="herdr"'
+
 # Claude Code — context-aware modes
 alias claude-dev='claude --system-prompt "$(cat ~/.claude/contexts/dev.md)"'
 alias claude-review='claude --system-prompt "$(cat ~/.claude/contexts/review.md)"'

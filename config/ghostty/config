@@ -1,0 +1,45 @@
+# Ghostty configuration
+# Deployed to ~/.config/ghostty/config by install.sh
+# Full reference: ghostty +show-config --default --docs
+# Reload without restarting: cmd+shift+,
+
+# --- Font ---------------------------------------------------------------
+# Same family iTerm uses. Required by Powerlevel10k and the Catppuccin
+# status-bar glyphs in tmux and herdr.
+font-family = MesloLGS Nerd Font Mono
+font-size = 13
+
+# --- Theme --------------------------------------------------------------
+# Follows the macOS appearance, matching the tmux bar, herdr and yazi.
+theme = dark:Catppuccin Mocha,light:Catppuccin Latte
+
+# --- Keyboard -----------------------------------------------------------
+# THE important one. Makes Option behave as Alt instead of composing accented
+# characters, which is what the herdr alt chords (alt+h/j/k/l, alt+1..9) and
+# the tmux tilish bindings need on a Spanish/Latin layout. Equivalent to
+# iTerm's "Option Key Sends = Esc+", set for both Option keys by macos.sh.
+macos-option-as-alt = true
+
+# --- Shell --------------------------------------------------------------
+# Ghostty injects shell integration automatically for zsh; "detect" keeps it
+# from fighting Powerlevel10k's own prompt setup.
+shell-integration = detect
+
+# --- Window -------------------------------------------------------------
+# Do not restore panes from the previous run: tmux and herdr already persist
+# their own sessions, and restoring on top of them duplicates shells.
+window-save-state = never
+window-padding-x = 4
+window-padding-y = 4
+
+# --- Multiplexers -------------------------------------------------------
+# No `command` is set on purpose, so a plain window is a plain login shell —
+# the same reasoning as .zshrc starting no multiplexer.
+#
+# Ghostty has no iTerm-style profiles. To open a window straight into a
+# multiplexer, launch it with an explicit command:
+#
+#   open -na Ghostty --args --command="tmux new-session -A -s main"
+#   open -na Ghostty --args --command="herdr"
+#
+# The `tm` and `hd` aliases in .zshrc wrap those.
