@@ -14,10 +14,11 @@ font-size = 13
 theme = dark:Catppuccin Mocha,light:Catppuccin Latte
 
 # --- Keyboard -----------------------------------------------------------
-# THE important one. Makes Option behave as Alt instead of composing accented
-# characters, which is what the herdr alt chords (alt+h/j/k/l, alt+1..9) and
-# the tmux tilish bindings need on a Spanish/Latin layout. Equivalent to
-# iTerm's "Option Key Sends = Esc+", set for both Option keys by macos.sh.
+# THE important one. On macOS, Option is the special-character modifier on every
+# layout (US included): option+e is ´, option+n is ˜, option+c is ç. Without
+# this, alt+h emits ˙ instead of reaching the terminal, so none of the herdr alt
+# chords or the tmux tilish bindings fire. Equivalent to iTerm's "Option Key
+# Sends = Esc+", which macos.sh sets on both Option keys.
 macos-option-as-alt = true
 
 # --- Shell --------------------------------------------------------------

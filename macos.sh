@@ -64,8 +64,10 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
 # --- iTerm2 ---
-# Set Left + Right Option to Esc+ (required for tmux Alt+letter bindings,
-# otherwise dead-keys on Spanish/Latin layouts swallow Option+N etc.).
+# Set Left + Right Option to Esc+ (required for tmux Alt+letter and herdr alt
+# chords). On macOS, Option is the special-character modifier on every layout,
+# US included: option+e is ´, option+n is ˜. Without Esc+, Option+N emits ˜
+# instead of reaching the terminal.
 # Also pin the font to MesloLGS Nerd Font (Powerlevel10k + Catppuccin icons).
 # Uses defaults import (cfprefsd-safe) instead of editing the plist directly.
 if [[ -f "$HOME/Library/Preferences/com.googlecode.iterm2.plist" ]] && command -v python3 &>/dev/null; then
