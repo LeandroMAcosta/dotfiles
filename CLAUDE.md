@@ -21,11 +21,19 @@ brew bundle dump --file=~/dotfiles/Brewfile --force
 
 ## How configs are deployed
 
-- `install.sh` uses `copy_file()` to copy (not symlink) files to their targets. Since configs are symlinked at the filesystem level by the user's workflow, edits in `~/.config/` or `~/.zshrc` are reflected here automatically.
+- `install.sh` uses `copy_file()` to copy (**not** symlink) files to their targets. The copy is one-way: repo → `$HOME`. Editing `~/.zshrc` or `~/.claude/settings.json` in place does **not** update the repo, and the next `./install.sh` overwrites it. After changing a deployed file, copy it back into the repo, or the change is lost.
 - Root-level dotfiles (`.zshrc`, `.p10k.zsh`) copy to `$HOME`.
 - Everything under `config/` copies to `~/.config/<dir_name>/`.
 - To add a new app config: place it in `config/<app>/` and `install.sh` picks it up automatically.
 - To add a new root-level dotfile: add a `copy_file` line in `install.sh`.
+
+> **`copy_file` does `rm -rf` on a directory destination.** If an app keeps
+> runtime state (sockets, sessions, caches, plugins) in the same directory as its
+> config, a directory copy destroys it. Existing exceptions: **TPM** is cloned
+> after the tmux copy, and **herdr** is skipped in the `config/*/` loop with only
+> its `config.toml` copied as a single file — otherwise deploying wipes
+> `herdr.sock` and kills the running server. Check for this before adding a new
+> `config/<app>/`.
 
 ## Key config files
 
@@ -34,6 +42,9 @@ brew bundle dump --file=~/dotfiles/Brewfile --force
 | `.zshrc` | `~/.zshrc` | Oh My Zsh with Powerlevel10k, fzf and zoxide integration. Starts no multiplexer — the iTerm profile decides |
 | `config/tmux/tmux.conf` | `~/.config/tmux/tmux.conf` | Prefix is `C-a`, uses TPM + tilish (i3-style) |
 | `config/nvim/` | `~/.config/nvim/` | LazyVim starter (lazy.nvim bootstrap) |
+| `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Prefix `C-a`, i3-style `alt` chords. Copied as a single file, not as a directory — see the `rm -rf` warning above |
+| `config/yazi/` | `~/.config/yazi/` | File manager. Catppuccin flavors are vendored under `flavors/` so `install.sh` restores them |
+| `claude/` | `~/.claude/` | Global `CLAUDE.md`, `settings.json`, rules, contexts, `statusline.sh` |
 | `Brewfile` | N/A | Declarative list of brew packages, casks |
 
 ## iTerm2 prerequisite
