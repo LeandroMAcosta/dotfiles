@@ -41,7 +41,7 @@ brew bundle dump --file=~/dotfiles/Brewfile --force
 |------|--------|-------|
 | `.zshrc` | `~/.zshrc` | Oh My Zsh with Powerlevel10k, fzf and zoxide integration. Starts no multiplexer — the iTerm profile decides |
 | `config/tmux/tmux.conf` | `~/.config/tmux/tmux.conf` | Prefix is `C-a`, uses TPM + tilish (i3-style) |
-| `config/nvim/` | `~/.config/nvim/` | LazyVim starter (lazy.nvim bootstrap) |
+| `config/nvim/` | `~/.config/nvim/` | LazyVim starter. `lazyvim.json` (enabled extras) and `lazy-lock.json` (pinned plugin commits) are tracked, so a fresh machine gets the same plugin set. After `:Lazy update` or enabling an extra, copy both back into the repo or the next `./install.sh` reverts them |
 | `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Prefix `C-a`, i3-style `alt` chords. Copied as a single file, not as a directory — see the `rm -rf` warning above |
 | `config/yazi/` | `~/.config/yazi/` | File manager. Catppuccin flavors are vendored under `flavors/` so `install.sh` restores them |
 | `config/ghostty/config` | `~/.config/ghostty/config` | Alternative terminal, installed alongside iTerm. `macos-option-as-alt` is the equivalent of iTerm's Option=Esc+ and the herdr `alt` chords need it |
