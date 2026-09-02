@@ -11,6 +11,16 @@
         "apiKey": "{env:ZAI_API_KEY}",
         "baseURL": "https://api.z.ai/api/coding/paas/v4"
       }
+    },
+    "anthropic": {
+      "options": {
+        "apiKey": "{env:ANTHROPIC_API_KEY}"
+      }
+    },
+    "groq": {
+      "options": {
+        "apiKey": "{env:GROQ_API_KEY}"
+      }
     }
   },
   "model": "zai/glm-4.6"
