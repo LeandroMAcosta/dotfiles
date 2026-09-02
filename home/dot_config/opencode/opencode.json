@@ -21,6 +21,30 @@
       "options": {
         "apiKey": "{env:GROQ_API_KEY}"
       }
+    },
+    "anthropic-organizer": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "Anthropic (AI Organizer Tabs)",
+      "options": {
+        "apiKey": "{env:AI_ORGANIZER_TABS_ANTHROPIC_API_KEY}"
+      },
+      "models": {
+        "claude-opus-5": { "name": "Claude Opus 5" },
+        "claude-sonnet-5": { "name": "Claude Sonnet 5" },
+        "claude-haiku-4-5": { "name": "Claude Haiku 4.5" }
+      }
+    },
+    "groq-organizer": {
+      "npm": "@ai-sdk/groq",
+      "name": "Groq (AI Organizer Tabs)",
+      "options": {
+        "apiKey": "{env:AI_ORGANIZER_TABS_GROQ_API_KEY}"
+      },
+      "models": {
+        "openai/gpt-oss-120b": { "name": "GPT-OSS 120B" },
+        "llama-3.3-70b-versatile": { "name": "Llama 3.3 70B Versatile" },
+        "groq/compound": { "name": "Groq Compound" }
+      }
     }
   },
   "model": "zai/glm-4.6"
