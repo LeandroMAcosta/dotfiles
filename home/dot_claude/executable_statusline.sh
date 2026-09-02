@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Claude Code statusline.
-# Receives session JSON on stdin; whatever this prints is rendered.
+# Receives session JSON on stdin; whatever this prints is rendered. Setting a
+# custom statusLine replaces the built-in one entirely, so anything not printed
+# here is not shown — that is why plan usage has to be read explicitly below.
 # Field reference: https://code.claude.com/docs/en/statusline
 
 input=$(cat)
@@ -19,20 +21,17 @@ MODEL=$(j '.model.display_name // "?"')
 EFFORT=$(j '.effort.level // ""')
 FAST=$(j '.fast_mode // false')
 DIR=$(j '.workspace.current_dir // .cwd // ""')
-PCT=$(j '.context_window.used_percentage // 0')
-WIN=$(j '.context_window.context_window_size // 200000')
-COST=$(j '.cost.total_cost_usd // 0')
-NAME=$(j '.session_name // ""')
+FIVE=$(j '.rate_limits.five_hour.used_percentage // empty')
+FIVE_AT=$(j '.rate_limits.five_hour.resets_at // empty')
+WEEK=$(j '.rate_limits.seven_day.used_percentage // empty')
 
 # Catppuccin Mocha, to match the tmux status bar and the herdr theme.
 R=$'\033[0m'
-PINK=$'\033[38;2;245;194;231m'
 BLUE=$'\033[38;2;137;180;250m'
 PEACH=$'\033[38;2;250;179;135m'
 GREEN=$'\033[38;2;166;227;161m'
-TEXT=$'\033[38;2;205;214;244m'
+RED=$'\033[38;2;243;139;168m'
 DIM=$'\033[38;2;108;112;134m'
-MAUVE=$'\033[38;2;203;166;247m'
 
 SEP="${DIM}❯${R}"
 
@@ -55,33 +54,34 @@ if [ -n "$DIR" ] && git -C "$DIR" rev-parse --git-dir >/dev/null 2>&1; then
   [ "${dirty:-0}" -gt 0 ] && seg_git="${seg_git} ${GREEN}+${dirty}${R}"
 fi
 
-# Context used as a percentage of the window, with the window size abbreviated.
-if [ "$WIN" -ge 1000000 ]; then
-  winf="$((WIN / 1000000))M"
-else
-  winf="$((WIN / 1000))K"
-fi
-pctf=$(printf '%.1f' "$PCT" 2>/dev/null || echo "$PCT")
-seg_ctx="${TEXT}▤ ${pctf}%/${winf}${R}"
-
-seg_cost="${GREEN}\$$(printf '%.2f' "$COST" 2>/dev/null || echo "$COST")${R}"
-
-line="${MAUVE}π${R} ${SEP} ${seg_model} ${SEP} ${seg_dir}"
-[ -n "$seg_git" ] && line="${line} ${SEP} ${seg_git}"
-line="${line} ${SEP} ${seg_ctx} ${SEP} ${seg_cost}"
-
-# Right-align the session name, padding with a rule. Width detection fails when
-# there is no tty, so fall back to a fixed pad rather than a broken layout.
-if [ -n "$NAME" ] && [ "$NAME" != "null" ]; then
-  cols=${COLUMNS:-$(tput cols 2>/dev/null || echo 0)}
-  plain=$(printf '%s' "$line" | sed $'s/\033\\[[0-9;]*m//g')
-  used=$(( ${#plain} + ${#NAME} + 4 ))
-  if [ "$cols" -gt "$used" ]; then
-    pad=$(printf '%*s' "$((cols - used))" '' | tr ' ' '-')
-  else
-    pad="---"
+# Plan usage: the 5-hour session window and the rolling 7-day one. Both are
+# absent until the first API response of a session, and each window disappears
+# once it resets, so every part is optional.
+usage_color() {
+  if [ "$1" -ge 85 ]; then printf '%s' "$RED"
+  elif [ "$1" -ge 60 ]; then printf '%s' "$PEACH"
+  else printf '%s' "$GREEN"
   fi
-  line="${line}  ${DIM}${pad}${R}  ${PEACH}${NAME}${R}"
+}
+
+seg_usage=""
+if [ -n "$FIVE" ]; then
+  n=${FIVE%.*}
+  seg_usage="$(usage_color "$n")5h ${n}%${R}"
+  # The reset time only matters when the window is filling up.
+  if [ "$n" -ge 50 ] && [ -n "$FIVE_AT" ]; then
+    at=$(date -r "$FIVE_AT" +%H:%M 2>/dev/null || date -d "@$FIVE_AT" +%H:%M 2>/dev/null)
+    [ -n "$at" ] && seg_usage="${seg_usage} ${DIM}till ${at}${R}"
+  fi
 fi
+if [ -n "$WEEK" ]; then
+  n=${WEEK%.*}
+  [ -n "$seg_usage" ] && seg_usage="${seg_usage} ${DIM}·${R} "
+  seg_usage="${seg_usage}$(usage_color "$n")7d ${n}%${R}"
+fi
+
+line="${seg_model} ${SEP} ${seg_dir}"
+[ -n "$seg_git" ] && line="${line} ${SEP} ${seg_git}"
+[ -n "$seg_usage" ] && line="${line} ${SEP} ${seg_usage}"
 
 printf '%s\n' "$line"
