@@ -59,32 +59,52 @@ Press `Space` and wait — a menu appears showing all available actions.
 | `Space + g + g` | Open lazygit |
 | `Space + q + q` | Quit all |
 
-## 3. Set up Claude Code integration
+## 3. Claude Code integration
 
-### Install claudecode.nvim
+Two independent mechanisms exist. **The one actually in use is the file watcher
+(3a).** claudecode.nvim (3b) is installed but deliberately dormant.
 
-This is the official Neovim plugin for Claude Code. It creates a WebSocket connection so Claude Code can see your files, cursor position, and you can accept/reject changes directly in Neovim.
+### 3a. Follow-the-change file watcher (active)
 
-Create the plugin file:
+Claude runs in its own terminal pane and edits files straight on disk. Nothing
+blocks it, and no accept/reject prompt interrupts it. `lua/config/autocmds.lua`
+then makes nvim follow along:
 
-```bash
-cat > ~/.config/nvim/lua/plugins/claude.lua << 'EOF'
-return {
-  {
-    "coder/claudecode.nvim",
-    dependencies = { "folke/snacks.nvim" },
-    opts = {
-      split_side = "right",
-      split_width_percentage = 0.35,
-    },
-  },
-}
-EOF
-```
+- `autoread` plus a 1s `checktime` poll reloads changed buffers, even while nvim
+  is unfocused.
+- A recursive `vim.uv.new_fs_event()` watcher on the cwd is a faster trigger —
+  it debounces write bursts by 80ms and then runs `checktime`. It re-arms on
+  `DirChanged`, so `:cd` is followed.
+- `BufReadPost` / `BufWritePost` keep a snapshot of each buffer plus the one
+  before it. On an autoread reload the events fire in the order `BufReadPre`,
+  `BufReadPost`, `FileChangedShellPost`, so by diff time the current snapshot
+  already holds the *new* contents — the previous one is what makes the diff
+  possible.
+- `FileChangedShellPost` diffs the two snapshots with `vim.diff`, moves the
+  cursor to the first changed line in every window showing that buffer, centers
+  it, and flashes the changed ranges (`ClaudeChangeFlash`, linked to `DiffAdd`)
+  for one second. gitsigns keeps marking them afterwards.
 
-Open `nvim` and the plugin installs automatically.
+What it deliberately does **not** do:
 
-### Key bindings for Claude
+- It never opens a file you do not already have open — no window hijacking.
+- It never steals focus. A change in a background split scrolls into view while
+  your cursor stays where it is.
+- It never touches a buffer with unsaved local changes; you get nvim's standard
+  `W12` warning instead.
+- Buffers over 20000 lines reload normally but are not diffed.
+
+### 3b. claudecode.nvim (installed, dormant)
+
+Pulled in by the `lazyvim.plugins.extras.ai.claudecode` extra in `lazyvim.json`,
+so no `lua/plugins/claude.lua` is needed. It speaks the same WebSocket protocol
+as the VS Code extension: native diffs you accept or reject, plus cursor and
+selection sharing.
+
+It is lazy-loaded on its keymaps only, so its server does not start on its own
+and `~/.claude/ide/` stays empty. To use it: press `Space + a + c` once (that
+loads the plugin and starts the server), then run `/ide` in an external Claude
+session to connect — or just work inside the terminal it opens.
 
 | Shortcut | Action |
 |----------|--------|
@@ -93,15 +113,12 @@ Open `nvim` and the plugin installs automatically.
 | `Space + a + r` | Resume Claude session |
 | `Space + a + C` | Continue conversation |
 | `Space + a + b` | Add current buffer to context |
+| `Space + a + a` | Accept the proposed diff |
+| `Space + a + d` | Reject the proposed diff |
 
-### How it works
-
-1. Open neovim in your project: `nvim .`
-2. Press `Space + a + c` to open Claude Code inside neovim
-3. Claude automatically sees your current file and cursor position
-4. When Claude proposes changes, you see a native diff view
-5. Accept or reject changes with keybindings
-6. File changes sync bidirectionally
+Note the two mechanisms overlap: with a diff open, the watcher's `checktime` is
+harmless (diff buffers are not file buffers), but the accept/reject flow is the
+authority on what lands on disk.
 
 ## 4. tmux — Managing neovim + Claude side by side
 
@@ -165,7 +182,7 @@ claude
 # Zoom into one pane: Ctrl+b z (toggle)
 ```
 
-### With claudecode.nvim (recommended)
+### With claudecode.nvim
 
 You don't even need tmux panes — Claude runs inside neovim:
 
@@ -175,11 +192,12 @@ nvim .
 # Press Space + a + c to open Claude inside neovim
 ```
 
-This is the cleanest setup because Claude has full context of your editor state.
+Claude then has full context of your editor state, at the cost of every edit
+waiting on an accept/reject. The split-pane setup above is the one in use here.
 
 ## 5. Recommended workflow summary
 
-### Option A: All inside neovim (simplest)
+### Option A: All inside neovim
 
 ```
 nvim .  →  Space+ac to toggle Claude  →  work normally
@@ -187,7 +205,7 @@ nvim .  →  Space+ac to toggle Claude  →  work normally
 
 Claude sees your files, cursor, selections. Changes appear as diffs you accept/reject.
 
-### Option B: tmux split (more screen space)
+### Option B: tmux split (in use here)
 
 ```
 ┌─────────────────┬──────────────────┐
@@ -198,7 +216,8 @@ Claude sees your files, cursor, selections. Changes appear as diffs you accept/r
 └─────────────────┴──────────────────┘
 ```
 
-Claude edits files directly. Neovim auto-reloads changed files.
+Claude edits files directly. Neovim reloads them and moves the cursor onto the
+changed lines (see §3a).
 
 ### Option C: Keep using Cursor/VS Code
 
