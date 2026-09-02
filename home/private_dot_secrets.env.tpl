@@ -19,6 +19,9 @@ export GODADDY_API_KEY={{ op://Developer Secrets/GoDaddy/credential }}
 export GODADDY_API_SECRET={{ op://Developer Secrets/GoDaddy/secret }}
 export GODADDY_GOPLY_API_KEY={{ op://Developer Secrets/GoDaddyGoply/credential }}
 export GODADDY_GOPLY_API_SECRET={{ op://Developer Secrets/GoDaddyGoply/secret }}
-export GROQ_API_KEY={{ op://Developer Secrets/Groq/credential }}
+# GROQ_API_KEY: el item "Groq" no existe en el vault y op inject aborta el archivo
+# entero (deja ~/.cache/secrets.env vacio). Cuando exista, volver a agregar la linea
+# apuntando al campo credential de ese item. Mientras tanto usar
+# AI_ORGANIZER_TABS_GROQ_API_KEY.
 export AI_ORGANIZER_TABS_ANTHROPIC_API_KEY={{ op://Developer Secrets/AI Organizer Tabs/anthropic }}
 export AI_ORGANIZER_TABS_GROQ_API_KEY={{ op://Developer Secrets/AI Organizer Tabs/groq }}
