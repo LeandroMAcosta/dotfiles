@@ -24,6 +24,8 @@ DIR=$(j '.workspace.current_dir // .cwd // ""')
 FIVE=$(j '.rate_limits.five_hour.used_percentage // empty')
 FIVE_AT=$(j '.rate_limits.five_hour.resets_at // empty')
 WEEK=$(j '.rate_limits.seven_day.used_percentage // empty')
+PCT=$(j '.context_window.used_percentage // 0')
+WIN=$(j '.context_window.context_window_size // 200000')
 
 # Catppuccin Mocha, to match the tmux status bar and the herdr theme.
 R=$'\033[0m'
@@ -64,6 +66,16 @@ usage_color() {
   fi
 }
 
+# Context used as a percentage of the window, with the window size abbreviated.
+# This is the one that warns before auto-compact, so it shares the usage colors.
+if [ "$WIN" -ge 1000000 ]; then
+  winf="$((WIN / 1000000))M"
+else
+  winf="$((WIN / 1000))K"
+fi
+ctx=${PCT%.*}
+seg_ctx="$(usage_color "$ctx")▤ ${ctx}%/${winf}${R}"
+
 seg_usage=""
 if [ -n "$FIVE" ]; then
   n=${FIVE%.*}
@@ -82,6 +94,7 @@ fi
 
 line="${seg_model} ${SEP} ${seg_dir}"
 [ -n "$seg_git" ] && line="${line} ${SEP} ${seg_git}"
+line="${line} ${SEP} ${seg_ctx}"
 [ -n "$seg_usage" ] && line="${line} ${SEP} ${seg_usage}"
 
 printf '%s\n' "$line"
