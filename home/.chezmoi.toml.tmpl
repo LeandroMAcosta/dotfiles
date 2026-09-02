@@ -1,0 +1,4 @@
+# Rendered once by `chezmoi init` into ~/.config/chezmoi/chezmoi.toml.
+# Pins the source to this git checkout so `chezmoi apply` edits deploy straight
+# from the repo instead of a second clone under ~/.local/share/chezmoi.
+sourceDir = {{ .chezmoi.workingTree | quote }}

@@ -1,0 +1,20 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Herdr agent integrations. Regenerating beats vendoring the hook files, since
+# herdr versions them alongside its binary. Reload the config too so a running
+# server picks up the deployed config.toml; both are no-ops without herdr.
+command -v herdr &>/dev/null || exit 0
+
+herdr server reload-config &>/dev/null || true
+
+echo "==> Installing herdr agent integrations..."
+for agent in claude codex opencode; do
+  if command -v "$agent" &>/dev/null; then
+    herdr integration install "$agent" >/dev/null 2>&1 \
+      && echo "  herdr integration: $agent" \
+      || echo "  herdr integration: $agent FAILED (run manually to see why)"
+  fi
+done
+{{ end -}}

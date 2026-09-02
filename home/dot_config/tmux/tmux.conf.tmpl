@@ -1,8 +1,13 @@
+{{ if eq .chezmoi.os "darwin" -}}
 # Use Homebrew zsh (arm64 on Apple Silicon, x86_64 on Intel)
 if-shell '[ -x /opt/homebrew/bin/zsh ]' \
   'set -g default-shell /opt/homebrew/bin/zsh' \
   'set -g default-shell /bin/zsh'
-
+{{ else -}}
+# Panes run zsh even though the login shell stays bash (Omarchy requires bash;
+# see linux/README.md in the dotfiles repo).
+set -g default-shell /usr/bin/zsh
+{{ end }}
 # Allow image passthrough (for iTerm2 inline images in Claude Code, etc.)
 set -g allow-passthrough all
 set -g set-clipboard on
@@ -33,12 +38,14 @@ bind -n WheelUpPane if-shell -F -t = "#{mouse_any_flag}" "send-keys -M" "if -Ft=
 # Vi mode for copy-mode (select with v, copy with y)
 set -g mode-keys vi
 bind -T copy-mode-vi v send-keys -X begin-selection
-bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
+{{- $clip := "pbcopy" }}{{ if ne .chezmoi.os "darwin" }}{{ $clip = "wl-copy" }}{{ end }}
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "{{ $clip }}"
 
-# Copy-paste: on mouse release after selecting, copy to macOS clipboard
+# Copy-paste: on mouse release after selecting, copy to the system clipboard
+# (pbcopy on macOS, wl-copy on Wayland).
 # Uses copy-pipe-no-clear so the selection remains visible
-bind -T copy-mode MouseDragEnd1Pane send-keys -X copy-pipe-no-clear "pbcopy"
-bind -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-no-clear "pbcopy"
+bind -T copy-mode MouseDragEnd1Pane send-keys -X copy-pipe-no-clear "{{ $clip }}"
+bind -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-no-clear "{{ $clip }}"
 
 # Move between panes with Option+arrows (no prefix)
 bind -n M-Left select-pane -L
@@ -88,8 +95,9 @@ set -g @resurrect-processes 'nvim'
 set -g @continuum-restore 'on'
 set -g @continuum-save-interval '15'
 
-# Initialize TPM (keep at the end)
-run '~/.tmux/plugins/tpm/tpm'
+# Initialize TPM (keep at the end). Installed by chezmoi at the XDG path
+# (see .chezmoiexternal.toml).
+run '~/.config/tmux/plugins/tpm/tpm'
 
 # Override: Alt+Enter always opens vertical split (side by side)
 bind -n M-Enter split-window -h -c "#{pane_current_path}"

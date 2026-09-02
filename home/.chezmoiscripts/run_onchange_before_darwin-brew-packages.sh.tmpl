@@ -1,0 +1,24 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Replaces brew.sh. Re-runs whenever the Brewfile changes:
+# Brewfile hash: {{ include "../Brewfile" | sha256sum }}
+
+if [[ "$(uname -m)" == "arm64" ]]; then
+  BREW="/opt/homebrew/bin/brew"
+  if [[ ! -f "$BREW" ]]; then
+    echo "==> Installing Homebrew (ARM native)..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+  eval "$($BREW shellenv)"
+elif ! command -v brew &>/dev/null; then
+  echo "==> Installing Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+echo "==> Installing Homebrew packages..."
+if ! brew bundle --file="{{ .chezmoi.workingTree }}/Brewfile" 2>&1; then
+  echo "  (some packages failed to install, see errors above)"
+fi
+{{ end -}}

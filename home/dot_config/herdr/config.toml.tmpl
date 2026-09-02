@@ -84,50 +84,51 @@ toggle_sidebar = ["prefix+b", "alt+shift+b"]
 reload_config = ["prefix+shift+r", "alt+shift+c"]
 
 # alt+1..9 — go to tab N, creating it when it is missing (see switch_tab above).
-# type = "shell" runs detached, so no pane flashes up. __HOME__ is replaced with
-# the real home directory by install.sh when it deploys this file.
+# type = "shell" runs detached, so no pane flashes up. herdr does not expand ~
+# or $HOME inside keys.command, so chezmoi renders the absolute home path here
+# at apply time.
 
 [[keys.command]]
 key = "alt+1"
 type = "shell"
-command = "__HOME__/.config/herdr/goto-tab.sh 1"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 1"
 
 [[keys.command]]
 key = "alt+2"
 type = "shell"
-command = "__HOME__/.config/herdr/goto-tab.sh 2"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 2"
 
 [[keys.command]]
 key = "alt+3"
 type = "shell"
-command = "__HOME__/.config/herdr/goto-tab.sh 3"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 3"
 
 [[keys.command]]
 key = "alt+4"
 type = "shell"
-command = "__HOME__/.config/herdr/goto-tab.sh 4"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 4"
 
 [[keys.command]]
 key = "alt+5"
 type = "shell"
-command = "__HOME__/.config/herdr/goto-tab.sh 5"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 5"
 
 [[keys.command]]
 key = "alt+6"
 type = "shell"
-command = "__HOME__/.config/herdr/goto-tab.sh 6"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 6"
 
 [[keys.command]]
 key = "alt+7"
 type = "shell"
-command = "__HOME__/.config/herdr/goto-tab.sh 7"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 7"
 
 [[keys.command]]
 key = "alt+8"
 type = "shell"
-command = "__HOME__/.config/herdr/goto-tab.sh 8"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 8"
 
 [[keys.command]]
 key = "alt+9"
 type = "shell"
-command = "__HOME__/.config/herdr/goto-tab.sh 9"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 9"

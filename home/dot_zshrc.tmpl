@@ -1,9 +1,11 @@
+{{ if eq .chezmoi.os "darwin" -}}
 # Homebrew — Apple Silicon (ARM) first, Intel fallback
 if [[ -f /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [[ -f /usr/local/bin/brew ]]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
+{{ end -}}
 export PATH="$HOME/bin:$PATH"
 
 # No multiplexer is started here on purpose — the iTerm profile decides which
@@ -41,8 +43,10 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Case-sensitive completion must be off. _ and - will be interchangeable.
 # HYPHEN_INSENSITIVE="true"
 
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
+# Oh My Zsh is installed by chezmoi as an external (see .chezmoiexternal.toml)
+# and refreshed by `chezmoi apply`, so its own updater must stay off — it would
+# fight the tarball chezmoi extracts (no .git dir to pull into).
+zstyle ':omz:update' mode disabled
 # zstyle ':omz:update' mode auto      # update automatically without asking
 # zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
@@ -127,19 +131,26 @@ source <(fzf --zsh 2>/dev/null)
 # Aliases
 alias reload='source ~/.zshrc && tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null; echo "All reloaded"'
 
+{{ if eq .chezmoi.os "darwin" -}}
 # Ghostty has no iTerm-style profiles, so the multiplexer is chosen at launch.
 # These open a NEW Ghostty window running one; a plain window stays a plain shell.
 alias tm='open -na Ghostty --args --command="tmux new-session -A -s main"'
 alias hd='open -na Ghostty --args --command="herdr"'
-
+{{ else -}}
+# No `open -na` on Linux; attach in the current terminal instead.
+alias tm='tmux new-session -A -s main'
+{{ end }}
 # Claude Code — context-aware modes
 alias claude-dev='claude --system-prompt "$(cat ~/.claude/contexts/dev.md)"'
 alias claude-review='claude --system-prompt "$(cat ~/.claude/contexts/review.md)"'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+{{ if eq .chezmoi.os "darwin" -}}
 export PATH="/opt/homebrew/opt/libpq/bin:$HOME/.local/bin:$PATH"
-
+{{ else -}}
+export PATH="$HOME/.local/bin:$PATH"
+{{ end }}
 # 1Password shell plugins (aws, gh, etc.)
 [[ -f ~/.config/op/plugins.sh ]] && source ~/.config/op/plugins.sh
 
@@ -197,7 +208,7 @@ _secrets_ttl=86400
 # and only when the cache is missing or stale.
 if [[ -z "${CLAUDECODE:-}" ]]; then
   if [[ ! -f "$_secrets_cache" ]] || \
-     (( $(date +%s) - $(stat -f %m "$_secrets_cache" 2>/dev/null || echo 0) > _secrets_ttl )); then
+     (( $(date +%s) - $({{ if eq .chezmoi.os "darwin" }}stat -f %m{{ else }}stat -c %Y{{ end }} "$_secrets_cache" 2>/dev/null || echo 0) > _secrets_ttl )); then
     op inject -i ~/.secrets.env.tpl 2>/dev/null > "$_secrets_cache" && chmod 600 "$_secrets_cache"
   fi
 fi
@@ -212,6 +223,7 @@ unset _secrets_cache _secrets_ttl
 # Create with: touch ~/.secrets && chmod 600 ~/.secrets
 [[ -f "$HOME/.secrets" ]] && source "$HOME/.secrets"
 
+{{ if eq .chezmoi.os "darwin" -}}
 # Orca.app is a GUI app launched outside the shell, so it can't see these
 # exports. Push its Bitbucket integration vars into the launchd user session
 # (idempotent) so Orca picks them up; opening any terminal keeps them current.
@@ -220,6 +232,7 @@ if [[ -n "${ORCA_BITBUCKET_API_TOKEN:-}" \
   launchctl setenv ORCA_BITBUCKET_EMAIL "$ORCA_BITBUCKET_EMAIL"
   launchctl setenv ORCA_BITBUCKET_API_TOKEN "$ORCA_BITBUCKET_API_TOKEN"
 fi
+{{ end }}
 
 # wrangler contra la cuenta de Cloudflare "running labs". Hace falta porque
 # wrangler prioriza CLOUDFLARE_API_TOKEN sobre el login OAuth, y el token del

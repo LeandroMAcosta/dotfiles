@@ -4,69 +4,60 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-macOS dotfiles repo for a development environment. Configs are **copied** (not symlinked) to their destinations by `install.sh`.
+Cross-platform dotfiles repo (macOS today, Arch Linux prepared), managed with **chezmoi**. The chezmoi source lives under `home/` (selected by `.chezmoiroot`); `~/.config/chezmoi/chezmoi.toml` pins this checkout as the source, so `chezmoi apply` deploys straight from the repo — no second clone.
 
 ## Commands
 
 ```bash
-# Full setup (Oh My Zsh, Powerlevel10k, zsh plugins, TPM, copy configs)
+# First-time setup on a new machine (installs chezmoi, then init --apply)
 ./install.sh
 
-# Install Homebrew and all packages/casks from Brewfile
-./brew.sh
+# Day to day
+chezmoi diff            # what would change
+chezmoi apply           # deploy repo -> $HOME (also runs scripts, refreshes externals)
+chezmoi re-add          # pull edits made in $HOME back into the repo
+chezmoi status          # drift summary
 
 # Regenerate Brewfile from currently installed packages
-brew bundle dump --file=~/dotfiles/Brewfile --force
+brew bundle dump --file=~/Workspace/personal/dotfiles/Brewfile --force
 ```
 
-## How configs are deployed
+## How deployment works
 
-- `install.sh` uses `copy_file()` to copy (**not** symlink) files to their targets. The copy is one-way: repo → `$HOME`. Editing `~/.zshrc` or `~/.claude/settings.json` in place does **not** update the repo, and the next `./install.sh` overwrites it. After changing a deployed file, copy it back into the repo, or the change is lost.
-- Root-level dotfiles (`.zshrc`, `.p10k.zsh`) copy to `$HOME`.
-- Everything under `config/` copies to `~/.config/<dir_name>/`.
-- To add a new app config: place it in `config/<app>/` and `install.sh` picks it up automatically.
-- To add a new root-level dotfile: add a `copy_file` line in `install.sh`.
+- chezmoi **copies** (renders) files into `$HOME` on `chezmoi apply`; nothing is symlinked. It applies file-by-file, so unmanaged runtime state (herdr's `herdr.sock`, tmux plugin clones, nvim caches) is never wiped — the old `rm -rf` hazard is gone.
+- Filename attributes encode target + metadata: `dot_zshrc.tmpl` → `~/.zshrc` (templated), `private_` → mode 600, `executable_` → mode 755.
+- `.tmpl` files are Go templates. OS branching uses `{{ if eq .chezmoi.os "darwin" }}` / `"linux"`; `{{ .chezmoi.homeDir }}` replaces the old `__HOME__` sed hack (herdr needs absolute paths in `keys.command`).
+- `home/.chezmoiignore.tmpl` skips files per OS (herdr and ghostty are not managed on Linux — see `linux/README.md`).
+- `home/.chezmoiexternal.toml` installs Oh My Zsh, Powerlevel10k, zsh plugins and TPM as weekly-refreshed tarballs; OMZ's own updater is disabled in `.zshrc` because of this.
+- `home/.chezmoiscripts/` replaces the old install.sh/brew.sh/macos.sh logic: `run_onchange_before_darwin-brew-packages` (brew bundle, re-runs when Brewfile changes), `run_onchange_after_darwin-macos-defaults` (former macos.sh: defaults + iTerm profile sync), `run_once_after_ssh-keys` (GitHub/Bitbucket keys from 1Password), `run_onchange_after_claude-skills`, `run_once_after_tmux-plugins`, `run_onchange_after_darwin-herdr-integrations`, and an **untested** `run_onchange_after_linux-arch-packages` stub.
+- Scripts whose whole body sits inside an OS guard render empty on the other OS, and chezmoi skips empty scripts.
 
-> **`copy_file` does `rm -rf` on a directory destination.** If an app keeps
-> runtime state (sockets, sessions, caches, plugins) in the same directory as its
-> config, a directory copy destroys it. Existing exceptions: **TPM** is cloned
-> after the tmux copy, and **herdr** is skipped in the `config/*/` loop with only
-> its `config.toml` copied as a single file — otherwise deploying wipes
-> `herdr.sock` and kills the running server. Check for this before adding a new
-> `config/<app>/`.
+## Editing rules
 
-## Key config files
+- Edit files in the repo (`home/...`) and run `chezmoi apply`. If you edited the deployed file in `$HOME` instead, run `chezmoi re-add` to capture it — for `.tmpl` targets re-add rewrites the template with rendered values, so prefer editing the template for those and check `chezmoi diff` afterwards.
+- `~/.claude/plugins/known_marketplaces.json` is deliberately **unmanaged** (machine paths + timestamps churn).
+- `config/nvim` equivalent lives at `home/dot_config/nvim/`. After `:Lazy update`, `chezmoi re-add ~/.config/nvim/lazy-lock.json` (and `lazyvim.json` if extras changed) or the next apply reverts them.
+- Secrets: `~/.secrets.env.tpl` (op:// references) is deployed as a plain file; `.zshrc` renders it via `op inject` into a 24h cache. Deliberately NOT chezmoi 1Password templating — that would hit 1Password on every `chezmoi diff`.
 
-| File | Target | Notes |
+## Key targets
+
+| Source | Target | Notes |
 |------|--------|-------|
-| `.zshrc` | `~/.zshrc` | Oh My Zsh with Powerlevel10k, fzf and zoxide integration. Starts no multiplexer — the iTerm profile decides |
-| `config/tmux/tmux.conf` | `~/.config/tmux/tmux.conf` | Prefix is `C-a`, uses TPM + tilish (i3-style) |
-| `config/nvim/` | `~/.config/nvim/` | LazyVim starter. `lazyvim.json` (enabled extras) and `lazy-lock.json` (pinned plugin commits) are tracked, so a fresh machine gets the same plugin set. After `:Lazy update` or enabling an extra, copy both back into the repo or the next `./install.sh` reverts them |
-| `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Prefix `C-a`, i3-style `alt` chords. Copied as a single file, not as a directory — see the `rm -rf` warning above. `__HOME__` in it is replaced with `$HOME` at deploy time, because herdr does not expand `~` inside `keys.command` |
-| `config/herdr/goto-tab.sh` | `~/.config/herdr/goto-tab.sh` | Backs the `alt+1..9` bindings: focuses tab N, creating tabs up to N when it does not exist. herdr's own `switch_tab` is a no-op for a missing tab, so `alt+1..9` is bound to this instead of `switch_tab` |
-| `config/yazi/` | `~/.config/yazi/` | File manager. Catppuccin flavors are vendored under `flavors/` so `install.sh` restores them |
-| `config/ghostty/config` | `~/.config/ghostty/config` | Alternative terminal, installed alongside iTerm. `macos-option-as-alt` is the equivalent of iTerm's Option=Esc+ and the herdr `alt` chords need it |
-| `claude/` | `~/.claude/` | Global `CLAUDE.md`, `settings.json`, rules, contexts, `statusline.sh` |
-| `Brewfile` | N/A | Declarative list of brew packages, casks |
+| `home/dot_zshrc.tmpl` | `~/.zshrc` | OMZ + p10k. Darwin-only: brew shellenv, `tm`/`hd` Ghostty aliases, libpq PATH, launchctl Orca block. Starts no multiplexer — the terminal profile decides |
+| `home/dot_config/tmux/tmux.conf.tmpl` | `~/.config/tmux/tmux.conf` | Prefix `C-a`, TPM + tilish. Clipboard: pbcopy/wl-copy per OS |
+| `home/dot_config/nvim/` | `~/.config/nvim/` | LazyVim. `omarchy-theme.lua` no-ops unless Omarchy's theme file exists |
+| `home/dot_config/herdr/` | `~/.config/herdr/` | Darwin only. Only config.toml + goto-tab.sh managed; runtime socket untouched |
+| `home/dot_config/ghostty/config.tmpl` | `~/.config/ghostty/config` | Darwin only via ignore on Linux (Omarchy owns it there) |
+| `home/private_dot_ssh/private_config.tmpl` | `~/.ssh/config` | 1Password agent socket per OS; colima Include darwin-only. chezmoi owns the whole file now (old awk-merge is gone) — local-only hosts belong in the template |
+| `home/dot_claude/` | `~/.claude/` | settings.json templated: osascript vs notify-send hooks, homeDir path |
+| `Brewfile` | N/A | Hashed into the darwin brew script; editing it triggers `brew bundle` on next apply |
+| `linux/README.md` | N/A | Omarchy/CachyOS playbook for the future Arch machine |
 
 ## iTerm2 prerequisite
 
-`macos.sh` automates the iTerm2 setup (restart iTerm to apply).
-
-Applied to every profile:
-- **Option Key Sends = Esc+** on left + right Option, required so dead-key layouts (Spanish/Latin etc.) don't swallow tmux `Alt+letter` bindings (e.g. `Alt+N` rename-window).
-- **Font = MesloLGS Nerd Font Mono 13**, required by Powerlevel10k and the tmux Catppuccin status bar icons.
-
-It also syncs one profile per terminal mode. The profile chooses the multiplexer via its custom command, which is why `.zshrc` starts none — that keeps tmux and herdr pane shells from re-exec'ing a multiplexer, and leaves embedded shells (VSCode, Cursor, Orca) plain:
-
-| Profile | Command | Notes |
-|---------|---------|-------|
-| `Default` | *(none)* | Plain login shell. Stays iTerm's default profile |
-| `tmux` | `tmux new-session -A -s main` | Attaches to the shared `main` session, creating it if absent |
-| `herdr` | `herdr` | Launches the herdr terminal workspace manager |
-
-Binaries are resolved with `command -v`, so it works on ARM and Intel Homebrew. The sync is idempotent: missing profiles are created from the default profile, existing ones have their command refreshed, and a profile whose binary is absent is skipped rather than created broken.
+The darwin defaults script (`home/.chezmoiscripts/run_onchange_after_darwin-macos-defaults.sh.tmpl`) applies macOS defaults and the iTerm2 setup (restart iTerm to apply): Option=Esc+ on both keys (dead-key layouts would swallow `Alt+letter` otherwise), MesloLGS Nerd Font Mono 13, and one profile per terminal mode (`Default` plain, `tmux` attaches `main`, `herdr` launches herdr) — which is why `.zshrc` starts no multiplexer.
 
 ## Conventions
 
-- `brew.sh` is a separate script from `install.sh` — Homebrew installation is intentionally decoupled from config deployment.
+- Never edit `/usr/share`-style vendor trees or chezmoi's cache; the repo is the single source.
+- `install.sh` is bootstrap-only; adding deploy logic there is wrong — use chezmoi attributes or a `.chezmoiscripts` script.

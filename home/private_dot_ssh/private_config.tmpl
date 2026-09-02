@@ -1,0 +1,29 @@
+{{ if eq .chezmoi.os "darwin" -}}
+# Colima's SSH entries; ssh ignores the Include when the file is absent.
+Include {{ .chezmoi.homeDir }}/.colima/ssh_config
+
+{{ end -}}
+Host github.com
+  HostName github.com
+  User git
+  # Local key fetched from 1Password by the ssh-keys chezmoi script; bypass the
+  # 1Password SSH agent so commits/pushes never trigger a per-use approval prompt.
+  IdentityFile ~/.ssh/id_ed25519_leacosta97
+  IdentitiesOnly yes
+  IdentityAgent none
+
+Host bitbucket.org
+  HostName bitbucket.org
+  User git
+  # Local key fetched from 1Password by the ssh-keys chezmoi script; bypass the
+  # 1Password SSH agent so commits/pushes never trigger a per-use approval prompt.
+  IdentityFile ~/.ssh/id_ed25519_engbim
+  IdentitiesOnly yes
+  IdentityAgent none
+
+Host *
+{{- if eq .chezmoi.os "darwin" }}
+  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+{{- else }}
+  IdentityAgent ~/.1password/agent.sock
+{{- end }}

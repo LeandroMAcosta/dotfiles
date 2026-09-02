@@ -1,47 +1,25 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This file provides guidance to coding agents working with this repository.
 
 ## Overview
 
-macOS dotfiles repo for a development environment. Configs are **copied** (not symlinked) to their destinations by `install.sh`.
+Cross-platform dotfiles repo (macOS today, Arch Linux prepared), managed with **chezmoi**. Source state lives under `home/` (selected by `.chezmoiroot`); `chezmoi apply` renders it into `$HOME` directly from this checkout.
 
 ## Commands
 
 ```bash
-# Full setup (Oh My Zsh, Powerlevel10k, zsh plugins, TPM, copy configs)
-./install.sh
-
-# Install Homebrew and all packages/casks from Brewfile
-./brew.sh
-
-# Regenerate Brewfile from currently installed packages
-brew bundle dump --file=~/dotfiles/Brewfile --force
+./install.sh        # first-time bootstrap (installs chezmoi, init --apply)
+chezmoi diff        # preview changes
+chezmoi apply       # deploy repo -> $HOME
+chezmoi re-add      # capture edits made in $HOME back into the repo
 ```
 
-## How configs are deployed
+## Rules
 
-- `install.sh` uses `copy_file()` to copy (not symlink) files to their targets. Since configs are symlinked at the filesystem level by the user's workflow, edits in `~/.config/` or `~/.zshrc` are reflected here automatically.
-- Root-level dotfiles (`.zshrc`, `.p10k.zsh`) copy to `$HOME`.
-- Everything under `config/` copies to `~/.config/<dir_name>/`.
-- To add a new app config: place it in `config/<app>/` and `install.sh` picks it up automatically.
-- To add a new root-level dotfile: add a `copy_file` line in `install.sh`.
-
-## Key config files
-
-| File | Target | Notes |
-|------|--------|-------|
-| `.zshrc` | `~/.zshrc` | Auto-starts tmux, Oh My Zsh with Powerlevel10k, fzf and zoxide integration |
-| `config/tmux/tmux.conf` | `~/.config/tmux/tmux.conf` | Prefix is `C-a`, uses TPM + tilish (i3-style) |
-| `config/nvim/` | `~/.config/nvim/` | LazyVim starter (lazy.nvim bootstrap) |
-| `Brewfile` | N/A | Declarative list of brew packages, casks |
-
-## iTerm2 prerequisite
-
-`macos.sh` automates two iTerm2 profile settings (restart iTerm to apply):
-- **Option Key Sends = Esc+** on left + right Option, required so dead-key layouts (Spanish/Latin etc.) don't swallow tmux `Alt+letter` bindings (e.g. `Alt+N` rename-window).
-- **Font = MesloLGS Nerd Font Mono 13**, required by Powerlevel10k and the tmux Catppuccin status bar icons.
-
-## Conventions
-
-- `brew.sh` is a separate script from `install.sh` — Homebrew installation is intentionally decoupled from config deployment.
+- chezmoi copies (no symlinks) and applies file-by-file; unmanaged runtime state (herdr socket, TPM plugin clones) survives applies.
+- Filename attributes: `dot_` → leading dot, `private_` → 0600, `executable_` → 0755, `.tmpl` → Go template. OS branches use `{{ if eq .chezmoi.os "darwin" }}`.
+- Per-OS skips live in `home/.chezmoiignore.tmpl` (herdr + ghostty unmanaged on Linux). Externals (OMZ, p10k, zsh plugins, TPM) in `home/.chezmoiexternal.toml`. Former install.sh/brew.sh/macos.sh logic lives in `home/.chezmoiscripts/`.
+- Edit repo sources, not deployed files; if a deployed file was edited, `chezmoi re-add` it (for `.tmpl` targets prefer editing the template and verify with `chezmoi diff`).
+- `install.sh` is bootstrap-only — never add deploy logic there.
+- See CLAUDE.md for the full key-target table and linux/README.md for the Arch/Omarchy plan.

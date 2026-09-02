@@ -1,0 +1,12 @@
+# Files chezmoi must NOT manage on this machine. Templated: entries listed
+# under a condition only apply there.
+
+{{ if ne .chezmoi.os "darwin" -}}
+# herdr is a macOS-first terminal workspace manager; Hyprland/the WM covers its
+# role on Linux.
+.config/herdr
+# Omarchy owns ~/.config/ghostty/config (its theme include lives there and
+# omarchy-refresh-* rewrites it). Merge by hand per linux/README.md instead of
+# letting chezmoi fight it.
+.config/ghostty
+{{ end -}}

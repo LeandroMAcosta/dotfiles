@@ -1,5 +1,8 @@
+{{ if eq .chezmoi.os "darwin" -}}
 #!/usr/bin/env bash
 set -euo pipefail
+
+# Former macos.sh. run_onchange: re-runs only when this file's content changes.
 
 echo "==> Applying macOS defaults..."
 
@@ -133,3 +136,4 @@ for app in Finder Dock SystemUIServer; do
 done
 
 echo "Done! Some changes may require logout or restart."
+{{ end -}}

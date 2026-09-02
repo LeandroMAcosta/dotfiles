@@ -1,0 +1,23 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Arch mirror of the Brewfile formulae (casks have no Linux counterpart).
+# UNTESTED: written before the Arch machine existed — review on first run.
+# run_onchange: re-runs when this list changes.
+command -v pacman &>/dev/null || exit 0
+
+packages=(
+  git github-cli zsh tmux neovim nodejs npm wget jq
+  python fzf lazygit zoxide yazi aws-cli docker-compose
+  wl-clipboard libnotify ttf-meslo-nerd
+)
+
+echo "==> Installing Arch packages (sudo required)..."
+sudo pacman -S --needed --noconfirm "${packages[@]}"
+
+# AUR (via yay, if present): 1password 1password-cli
+if command -v yay &>/dev/null; then
+  yay -S --needed --noconfirm 1password 1password-cli || true
+fi
+{{ end -}}

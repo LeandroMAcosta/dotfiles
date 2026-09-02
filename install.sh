@@ -1,271 +1,33 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Bootstrap only. Everything else — file deploys, per-OS templating, externals
+# (OMZ, p10k, TPM), brew/pacman packages, macOS defaults — is chezmoi's job.
+# Day to day: edit files in the repo and run `chezmoi apply`, or edit deployed
+# files and pull changes back with `chezmoi re-add`.
+
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "==> Installing dotfiles from $DOTFILES_DIR"
-
-# --- Oh My Zsh ---
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-  echo "==> Installing Oh My Zsh..."
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-fi
-
-# --- Powerlevel10k ---
-P10K_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
-if [[ ! -d "$P10K_DIR" ]]; then
-  echo "==> Installing Powerlevel10k..."
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
-fi
-
-# --- Zsh plugins ---
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-
-if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]]; then
-  echo "==> Installing zsh-autosuggestions..."
-  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
-fi
-
-if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
-  echo "==> Installing zsh-syntax-highlighting..."
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
-fi
-
-# --- TPM (tmux plugin manager) ---
-# Cloned later, after the tmux config copy, to land at the XDG plugin path
-# (~/.config/tmux/plugins/tpm) without being wiped by copy_file.
-
-# --- Copy dotfiles ---
-copy_file() {
-  local src="$1" dst="$2"
-  # Remove old symlinks before copying
-  if [[ -L "$dst" ]]; then
-    rm "$dst"
-  fi
-  if [[ -d "$src" ]]; then
-    rm -rf "$dst"
-    cp -R "$src" "$dst"
+if ! command -v chezmoi &>/dev/null; then
+  echo "==> Installing chezmoi..."
+  if [[ "$(uname -s)" == "Darwin" ]] && command -v brew &>/dev/null; then
+    brew install chezmoi
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -S --needed --noconfirm chezmoi
   else
-    cp -f "$src" "$dst"
-  fi
-  echo "  Copied $src -> $dst"
-}
-
-echo "==> Copying config files..."
-copy_file "$DOTFILES_DIR/.zshrc"   "$HOME/.zshrc"
-copy_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
-copy_file "$DOTFILES_DIR/.secrets.env.tpl" "$HOME/.secrets.env.tpl"
-
-# Local plaintext secrets file, kept out of the repo. Create it empty with tight
-# perms if missing so ~/.zshrc can source it; user fills it in by hand.
-if [[ ! -f "$HOME/.secrets" ]]; then
-  printf '# Local plaintext secrets — never committed. chmod 600. export VAR=value\n' > "$HOME/.secrets"
-  chmod 600 "$HOME/.secrets"
-  echo "  Created empty ~/.secrets (fill in by hand, never committed)"
-fi
-
-# SSH config (merge: dotfiles entries first, then append local-only hosts)
-mkdir -p "$HOME/.ssh"
-if [[ -f "$HOME/.ssh/config" ]]; then
-  # Keep only Host blocks from existing config that are NOT in dotfiles
-  dotfiles_hosts=$(awk '/^Host / { printf "%s,", $2 }' "$DOTFILES_DIR/ssh/config")
-  local_entries=$(awk -v known="$dotfiles_hosts" '
-    BEGIN { n=split(known, arr, ","); for (i=1;i<=n;i++) if (arr[i]!="") skip_host[arr[i]]=1 }
-    /^Host / { skip = ($2 in skip_host) }
-    !skip
-  ' "$HOME/.ssh/config")
-  cp -f "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
-  if [[ -n "$local_entries" ]]; then
-    printf '\n%s\n' "$local_entries" >> "$HOME/.ssh/config"
-  fi
-else
-  cp -f "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
-fi
-chmod 600 "$HOME/.ssh/config"
-echo "  Merged SSH config"
-
-# AWS config (profiles/regions only, no credentials)
-mkdir -p "$HOME/.aws"
-copy_file "$DOTFILES_DIR/aws/config" "$HOME/.aws/config"
-
-# Git config (main only, no credentials).
-if [[ -d "$DOTFILES_DIR/git" ]]; then
-  copy_file "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
-fi
-
-# GitHub (github.com) + Bitbucket (bitbucket.org) SSH keys. Stored in 1Password
-# but written to disk so commits/pushes use the local key directly (see the
-# IdentityAgent none entries in ~/.ssh/config) and never trigger a per-use
-# 1Password SSH agent approval prompt.
-if command -v op &>/dev/null && op account list &>/dev/null 2>&1; then
-  for key_item in id_ed25519_leacosta97 id_ed25519_engbim; do
-    key_path="$HOME/.ssh/$key_item"
-    [[ -f "$key_path" ]] && continue
-    op read "op://Developer Secrets/$key_item/private key?ssh-format=openssh" > "$key_path" 2>/dev/null \
-      && chmod 600 "$key_path" \
-      && op item get "$key_item" --vault "Developer Secrets" \
-           --fields label="public key" --reveal 2>/dev/null | tr -d '"' > "$key_path.pub" \
-      && chmod 644 "$key_path.pub" \
-      && echo "  Wrote SSH key $key_item from 1Password"
-  done
-fi
-
-# Copy everything in config/ to ~/.config/
-# herdr is skipped here on purpose: copy_file does `rm -rf` on a directory
-# destination, and herdr keeps its runtime socket (herdr.sock) and session
-# state inside ~/.config/herdr. A directory copy therefore kills the running
-# server and detaches every pane. Its config.toml is copied as a single file
-# below instead. Same hazard as TPM above.
-if [[ -d "$DOTFILES_DIR/config" ]]; then
-  for dir in "$DOTFILES_DIR/config"/*/; do
-    dir_name="$(basename "$dir")"
-    [[ "$dir_name" == "herdr" ]] && continue
-    mkdir -p "$HOME/.config"
-    copy_file "$DOTFILES_DIR/config/$dir_name" "$HOME/.config/$dir_name"
-  done
-fi
-
-if [[ -f "$DOTFILES_DIR/config/herdr/config.toml" ]]; then
-  mkdir -p "$HOME/.config/herdr"
-  copy_file "$DOTFILES_DIR/config/herdr/config.toml" "$HOME/.config/herdr/config.toml"
-  # The alt+1..9 keys.command entries need an absolute path; herdr does not
-  # expand ~ or $HOME inside them. Substituted at deploy time, which is why the
-  # repo copy carries the __HOME__ placeholder.
-  sed -i '' "s|__HOME__|$HOME|g" "$HOME/.config/herdr/config.toml"
-
-  # Helper invoked by those bindings. Needs the exec bit; copy_file drops it.
-  if [[ -f "$DOTFILES_DIR/config/herdr/goto-tab.sh" ]]; then
-    copy_file "$DOTFILES_DIR/config/herdr/goto-tab.sh" "$HOME/.config/herdr/goto-tab.sh"
-    chmod +x "$HOME/.config/herdr/goto-tab.sh"
-  fi
-
-  # Apply to a running server if there is one; a no-op when there is not.
-  command -v herdr &>/dev/null && herdr server reload-config &>/dev/null || true
-fi
-
-# --- Herdr agent integrations ---
-# Reinstalled after the config copy on purpose: copy_file does `rm -rf` on
-# directory targets, so copying config/opencode/ wipes the herdr plugin that
-# lives at ~/.config/opencode/plugins/herdr-agent-state.js. Regenerating beats
-# vendoring the file, since herdr versions the hook alongside its binary.
-# Only agents present on PATH are installed; herdr skips ones already current.
-if command -v herdr &> /dev/null; then
-  echo "==> Installing herdr agent integrations..."
-  for agent in claude codex opencode; do
-    if command -v "$agent" &> /dev/null; then
-      herdr integration install "$agent" >/dev/null 2>&1 \
-        && echo "  herdr integration: $agent" \
-        || echo "  herdr integration: $agent FAILED (run manually to see why)"
-    fi
-  done
-fi
-
-# --- Install tmux plugins (only if missing) ---
-# TPM honours XDG: when ~/.config/tmux/tmux.conf exists, plugins live in
-# ~/.config/tmux/plugins/ instead of ~/.tmux/plugins/.
-if [[ -f "$HOME/.config/tmux/tmux.conf" ]]; then
-  TPM_PLUGIN_DIR="$HOME/.config/tmux/plugins"
-else
-  TPM_PLUGIN_DIR="$HOME/.tmux/plugins"
-fi
-
-# Clone TPM here (after the tmux config copy wiped any previous plugins/ dir).
-if [[ ! -d "$TPM_PLUGIN_DIR/tpm" ]]; then
-  echo "==> Installing TPM at $TPM_PLUGIN_DIR/tpm..."
-  git clone --depth=1 https://github.com/tmux-plugins/tpm "$TPM_PLUGIN_DIR/tpm"
-fi
-
-plugin_missing=false
-for plugin_name in tmux-tilish tmux tmux-resurrect tmux-continuum; do
-  if [[ ! -d "$TPM_PLUGIN_DIR/$plugin_name" ]]; then
-    plugin_missing=true
-    break
-  fi
-done
-
-if $plugin_missing; then
-  echo "==> Installing tmux plugins..."
-  # If a tmux server is already running (e.g. user invoked install.sh from
-  # inside tmux), reload the conf there so TPM sets TMUX_PLUGIN_MANAGER_PATH.
-  # Otherwise spin up a throwaway detached server.
-  if tmux list-sessions &>/dev/null; then
-    tmux source-file "$HOME/.config/tmux/tmux.conf"
-    "$TPM_PLUGIN_DIR/tpm/bin/install_plugins"
-  else
-    tmux -f "$HOME/.config/tmux/tmux.conf" new-session -d -s _tpm_install
-    "$TPM_PLUGIN_DIR/tpm/bin/install_plugins"
-    tmux kill-session -t _tpm_install 2>/dev/null || true
-  fi
-else
-  echo "==> Tmux plugins already installed, skipping"
-fi
-
-# --- Verify architecture ---
-echo "==> Architecture check:"
-echo "  uname -m: $(uname -m)"
-echo "  arch:     $(arch)"
-if [[ "$(uname -m)" == "arm64" ]]; then
-  echo "  ✓ Running natively on Apple Silicon"
-elif [[ "$(uname -m)" == "x86_64" && -d /opt/homebrew ]]; then
-  echo "  ⚠ Running under Rosetta on Apple Silicon — check your terminal settings"
-fi
-
-# --- Claude Code config ---
-if [[ -d "$DOTFILES_DIR/claude" ]]; then
-  echo "==> Copying Claude Code configs..."
-  mkdir -p "$HOME/.claude"
-  copy_file "$DOTFILES_DIR/claude/CLAUDE.md"      "$HOME/.claude/CLAUDE.md"
-  copy_file "$DOTFILES_DIR/claude/settings.json"   "$HOME/.claude/settings.json"
-
-  # Status line script referenced by settings.json ("statusLine"). Needs the
-  # exec bit; copy_file does not preserve it.
-  copy_file "$DOTFILES_DIR/claude/statusline.sh"  "$HOME/.claude/statusline.sh"
-  chmod +x "$HOME/.claude/statusline.sh"
-
-  if [[ -d "$DOTFILES_DIR/claude/rules" ]]; then
-    mkdir -p "$HOME/.claude/rules"
-    for rule in "$DOTFILES_DIR/claude/rules"/*.md; do
-      copy_file "$rule" "$HOME/.claude/rules/$(basename "$rule")"
-    done
-  fi
-
-  if [[ -d "$DOTFILES_DIR/claude/contexts" ]]; then
-    mkdir -p "$HOME/.claude/contexts"
-    for ctx in "$DOTFILES_DIR/claude/contexts"/*.md; do
-      copy_file "$ctx" "$HOME/.claude/contexts/$(basename "$ctx")"
-    done
-  fi
-
-  if [[ -f "$DOTFILES_DIR/claude/plugins/known_marketplaces.json" ]]; then
-    mkdir -p "$HOME/.claude/plugins"
-    copy_file "$DOTFILES_DIR/claude/plugins/known_marketplaces.json" "$HOME/.claude/plugins/known_marketplaces.json"
+    sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:$PATH"
   fi
 fi
 
-# --- Claude Code skills ---
-if command -v npx &>/dev/null; then
-  echo "==> Installing Claude Code skills..."
-  # Each repo installs an explicit skill list rather than everything it ships.
-  # `skills add` cannot pin a commit, so without -s any skill the upstream adds
-  # later is installed silently on the next run, with full agent permissions.
-  # That is how the Caveman Cloud skills arrived uninvited; they were removed.
-  # To adopt a new upstream skill, add its name here deliberately.
-  # Audit reports: https://www.skills.sh/audits
-  npx -y skills add JuliusBrussee/caveman -g -y --agent claude-code \
-    -s caveman,caveman-commit,caveman-compress,caveman-explore,caveman-help,caveman-review,caveman-stats || true
-  npx -y skills add nextlevelbuilder/ui-ux-pro-max-skill -g -y --agent claude-code \
-    -s banner-design,brand,design,design-system,slides,ui-styling,ui-ux-pro-max || true
-  npx -y skills add shadcn/ui -g -y --agent claude-code \
-    -s shadcn,migrate-radix-to-base || true
-  npx -y skills add forrestchang/andrej-karpathy-skills -g -y --agent claude-code \
-    -s karpathy-guidelines || true
-fi
+# Renders home/.chezmoi.toml.tmpl into ~/.config/chezmoi/chezmoi.toml (pinning
+# this checkout as the source) and applies everything.
+chezmoi init --source "$DOTFILES_DIR" --apply
 
-# --- Reload configs ---
-source "$HOME/.zshrc" 2>/dev/null || true
-tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null || true
+echo ""
+echo "Done! Run 'chezmoi diff' any time to see pending changes."
 
-# --- 1Password setup check ---
+# 1Password manual setup hint (secrets + SSH keys need it)
 if ! command -v op &>/dev/null || ! op account list &>/dev/null 2>&1; then
   echo ""
   echo "==> 1Password manual setup needed:"
@@ -275,6 +37,3 @@ if ! command -v op &>/dev/null || ! op account list &>/dev/null 2>&1; then
   echo "  2. Run: op plugin init aws"
   echo "  3. Run: load-secrets (to verify secrets injection)"
 fi
-
-echo ""
-echo "Done! Configs installed and reloaded."

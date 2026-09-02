@@ -13,14 +13,15 @@ font-size = 13
 # Follows the macOS appearance, matching the tmux bar, herdr and yazi.
 theme = dark:Catppuccin Mocha,light:Catppuccin Latte
 
+{{ if eq .chezmoi.os "darwin" -}}
 # --- Keyboard -----------------------------------------------------------
 # THE important one. On macOS, Option is the special-character modifier on every
 # layout (US included): option+e is ´, option+n is ˜, option+c is ç. Without
 # this, alt+h emits ˙ instead of reaching the terminal, so none of the herdr alt
 # chords or the tmux tilish bindings fire. Equivalent to iTerm's "Option Key
-# Sends = Esc+", which macos.sh sets on both Option keys.
+# Sends = Esc+", which the darwin defaults script sets on both Option keys.
 macos-option-as-alt = true
-
+{{ end }}
 # --- Shell --------------------------------------------------------------
 # Ghostty injects shell integration automatically for zsh; "detect" keeps it
 # from fighting Powerlevel10k's own prompt setup.

@@ -1,4 +1,5 @@
 # Core
+brew "chezmoi"
 brew "git"
 brew "gh"
 brew "zsh"
