@@ -122,9 +122,14 @@ vim.api.nvim_create_autocmd("FileChangedShellPost", {
 
 -- Fast trigger: watch the project recursively and run `checktime` on the buffer
 -- backing whichever file just changed, which in turn fires the handler above.
--- Files that are not open are ignored on purpose — nothing hijacks a window.
+-- A changed file that is NOT open gets opened in the current window, so an
+-- external editor session (Claude Code) stays visible without a manual `:e`.
+-- Bursts touching many files (a git checkout, a formatter sweep) only reload:
+-- opening dozens of buffers would bury the one being worked on.
 local watch_ignore = { "/%.git/", "node_modules", "%.venv/", "__pycache__", "/dist/", "%.log$", "lazy%-lock" }
+local open_burst_cap = 3
 local watcher, pending
+local burst = {}
 
 local function start_watcher(root)
   if watcher then
@@ -148,12 +153,24 @@ local function start_watcher(root)
     -- attribute change), and an edit can touch many files at once. A bare
     -- `checktime` then reloads every stale buffer, so a multi-file edit lands
     -- each open buffer on its own change instead of racing for one window.
+    burst[path] = true
     if pending then
       pending:stop()
     end
     pending = vim.defer_fn(function()
-      if vim.fn.mode() == "n" and vim.fn.getcmdwintype() == "" then
-        vim.cmd("silent! checktime")
+      local paths = vim.tbl_keys(burst)
+      burst = {}
+      if vim.fn.mode() ~= "n" or vim.fn.getcmdwintype() ~= "" then
+        return
+      end
+      vim.cmd("silent! checktime")
+      if #paths > open_burst_cap then
+        return
+      end
+      for _, p in ipairs(paths) do
+        if vim.fn.filereadable(p) == 1 and vim.fn.bufloaded(p) == 0 then
+          vim.cmd("silent! edit " .. vim.fn.fnameescape(p))
+        end
       end
     end, 80)
   end)
