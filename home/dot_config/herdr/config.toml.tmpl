@@ -55,8 +55,13 @@ resize_pane_up = "alt+shift+up"
 resize_pane_right = "alt+shift+right"
 
 # Splits — i3 $mod+v
-split_vertical = ["prefix+v", "alt+v"]
-split_horizontal = ["prefix+minus", "alt+minus"]
+# ctrl+shift family: n = new tab, enter = split vertical, minus = split
+# horizontal. Held chords, no prefix tap. ctrl+shift+letter and
+# ctrl+shift+punctuation only survive terminals that speak CSI-u/Kitty
+# keyboard protocol (Ghostty yes by default, iTerm2 needs "Report
+# modifiers using CSI u" in the profile Keys tab).
+split_vertical = ["prefix+v", "alt+v", "ctrl+shift+enter"]
+split_horizontal = ["prefix+minus", "alt+minus", "ctrl+shift+minus"]
 
 # Tabs behave like i3 workspaces — $mod+1..9.
 # alt+1..9 is not bound here: herdr's switch_tab does nothing when the tab does
@@ -64,9 +69,11 @@ split_horizontal = ["prefix+minus", "alt+minus"]
 # blocks at the end of this file bind alt+1..9 to goto-tab.sh, which focuses
 # the tab or creates it first. prefix+1..9 keeps the plain built-in behaviour.
 switch_tab = "prefix+1..9"
-new_tab = ["prefix+c", "alt+enter"]
-next_tab = ["prefix+n", "alt+]"]
-previous_tab = ["prefix+p", "alt+["]
+new_tab = ["prefix+c", "alt+enter", "ctrl+shift+n"]
+# ctrl+shift+left/right mirrors the horizontal tab bar, the same way
+# ctrl+shift+up/down mirrors the vertical space list in the sidebar.
+next_tab = ["prefix+n", "alt+]", "ctrl+shift+right"]
+previous_tab = ["prefix+p", "alt+[", "ctrl+shift+left"]
 close_tab = ["prefix+shift+x", "alt+shift+x"]
 
 # Panes — i3 $mod+shift+q kills, $mod+f fullscreens, $mod+r resizes
@@ -78,6 +85,13 @@ resize_mode = ["prefix+r", "alt+r"]
 workspace_picker = ["prefix+w", "alt+w"]
 new_workspace = ["prefix+shift+n", "alt+shift+n"]
 switch_workspace = ["prefix+shift+1..9", "alt+shift+1..9"]
+
+# Cycle spaces without knowing their index. Unset by default in herdr. Up/down
+# matches the sidebar order, where the spaces list is stacked vertically.
+# ctrl+shift+arrow is a direct chord (no prefix tap) and collides with nothing
+# here: alt+shift+arrow is already taken by resize_pane_*.
+previous_workspace = ["prefix+shift+up", "ctrl+shift+up"]
+next_workspace = ["prefix+shift+down", "ctrl+shift+down"]
 
 # Misc — i3 $mod+shift+c reloads config
 toggle_sidebar = ["prefix+b", "alt+shift+b"]
