@@ -1,10 +1,10 @@
--- Display-focus hotkeys for a 3-monitor setup. Replaces AeroSpace: its window
--- model desynced from macOS on every click (clicking a window yanked focus to
--- a stale target), in 0.20.3 and 0.21.3 alike. Hammerspoon keeps no window
--- model, so it cannot disagree with macOS about anything.
+-- Display-focus hotkeys for a 3-monitor setup. macOS has no native shortcut
+-- to move keyboard focus between displays; a full window manager keeps its own
+-- model of windows and can desync from macOS when native Spaces are in use.
+-- Hammerspoon keeps no window model, so it cannot disagree with macOS.
 --
--- Same chords as the AeroSpace setup: cmd+ctrl is the only modifier family
--- free of herdr (ctrl+shift, alt) and the terminals (plain cmd).
+-- cmd+ctrl is the only modifier family free of herdr (ctrl+shift, alt) and
+-- the terminals (plain cmd).
 --
 -- Logical row, index order:  1 built-in | 2 LG ULTRAWIDE | 3 bottom 1080p.
 -- The bottom panel reports a generic name, so it is matched as "the remaining
