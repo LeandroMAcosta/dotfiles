@@ -146,3 +146,30 @@ command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 8"
 key = "alt+9"
 type = "shell"
 command = "{{ .chezmoi.homeDir }}/.config/herdr/goto-tab.sh 9"
+
+# Hold macOS awake while an agent run finishes. ctrl+shift+k is free: the
+# ctrl+shift family already spends enter, minus, n, w, r and the arrows. Like
+# the other ctrl+shift+letter chords it only reaches herdr from a terminal
+# speaking CSI-u, so iTerm needs "Report modifiers using CSI u" in the profile
+# Keys tab. prefix+shift+k is the path that works regardless; prefix+k is
+# taken by focus_pane_up, hence the shift.
+
+[[keys.command]]
+key = "ctrl+shift+k"
+type = "shell"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/caffeine-toggle.sh"
+
+[[keys.command]]
+key = "prefix+shift+k"
+type = "shell"
+command = "{{ .chezmoi.homeDir }}/.config/herdr/caffeine-toggle.sh"
+
+# The toggle is invisible otherwise: caffeinate is a bare background process
+# with no UI, so without this entry there is no way to tell an armed assertion
+# from a forgotten one. The script names both states rather than printing
+# nothing when off, because herdr clears the slot on empty output and a blank
+# slot is indistinguishable from a broken entry.
+[ui]
+tab_bar_right = [
+  { type = "command", command = "{{ .chezmoi.homeDir }}/.config/herdr/caffeine-toggle.sh status", interval_seconds = 1, timeout_seconds = 2 },
+]
