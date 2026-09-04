@@ -126,7 +126,22 @@ vim.api.nvim_create_autocmd("FileChangedShellPost", {
 -- external editor session (Claude Code) stays visible without a manual `:e`.
 -- Bursts touching many files (a git checkout, a formatter sweep) only reload:
 -- opening dozens of buffers would bury the one being worked on.
-local watch_ignore = { "/%.git/", "node_modules", "%.venv/", "__pycache__", "/dist/", "%.log$", "lazy%-lock" }
+-- coverage.py writes `.coverage.<host>.<pid>.<rand>` SQLite files during a test
+-- run; without these the watcher opens each one as a binary buffer.
+local watch_ignore = {
+  "/%.git/",
+  "node_modules",
+  "%.venv/",
+  "__pycache__",
+  "/dist/",
+  "%.log$",
+  "lazy%-lock",
+  "/%.coverage",
+  "/coverage/",
+  "coverage%.xml$",
+  "/htmlcov/",
+  "/%.pytest_cache/",
+}
 local open_burst_cap = 3
 local watcher, pending
 local burst = {}
