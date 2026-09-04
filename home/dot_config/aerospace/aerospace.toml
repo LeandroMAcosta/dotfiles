@@ -36,12 +36,27 @@ run = 'layout floating'
 # claim plain cmd. A WM binding is global and fires before the terminal sees
 # the key, so overlapping either herdr family would break it inside every pane.
 [mode.main.binding]
-cmd-ctrl-left = 'focus-monitor left'
-cmd-ctrl-right = 'focus-monitor right'
-cmd-ctrl-h = 'focus-monitor left'
-cmd-ctrl-l = 'focus-monitor right'
+# Monitors are treated as a logical row, in index order:
+#   1 Built-in Retina | 2 LG ULTRAWIDE | 3 bottom 1080p (reports an empty name)
+# `next`/`prev` walk that row by monitor index and ignore the physical layout,
+# which is what we want: display 3 sits physically *below* the LG, but belongs
+# to the right of it mentally. Edges stop rather than wrap; add --wrap-around
+# to either command to cycle instead.
+cmd-ctrl-right = 'focus-monitor next'
+cmd-ctrl-left = 'focus-monitor prev'
+cmd-ctrl-l = 'focus-monitor next'
+cmd-ctrl-h = 'focus-monitor prev'
+
+# Direct jumps, pinned by index, for skipping straight to a display.
+cmd-ctrl-up = 'focus-monitor 2'
+cmd-ctrl-down = 'focus-monitor 3'
+cmd-ctrl-k = 'focus-monitor 2'
+cmd-ctrl-j = 'focus-monitor 3'
+
 cmd-ctrl-tab = 'focus-monitor next'
 
-# Send the focused window to the neighbouring display and follow it there.
-cmd-ctrl-shift-left = 'move-node-to-monitor left --focus-follows-window'
-cmd-ctrl-shift-right = 'move-node-to-monitor right --focus-follows-window'
+# Send the focused window along the same row, or straight to a display.
+cmd-ctrl-shift-right = 'move-node-to-monitor next --focus-follows-window'
+cmd-ctrl-shift-left = 'move-node-to-monitor prev --focus-follows-window'
+cmd-ctrl-shift-up = 'move-node-to-monitor 2 --focus-follows-window'
+cmd-ctrl-shift-down = 'move-node-to-monitor 3 --focus-follows-window'
