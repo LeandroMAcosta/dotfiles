@@ -10,6 +10,10 @@
 -- The bottom panel reports a generic name, so it is matched as "the remaining
 -- screen" rather than by name.
 
+-- CLI control: lets `hs -c "hs.reload()"` work, so config changes apply
+-- without hunting the menu-bar icon.
+require("hs.ipc")
+
 local function row()
   local builtin, lg, rest = nil, nil, {}
   for _, s in ipairs(hs.screen.allScreens()) do
