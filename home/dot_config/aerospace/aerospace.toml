@@ -25,7 +25,10 @@ outer.top = 0
 outer.right = 0
 
 # Float everything. Remove this block to let AeroSpace tile.
+# `if = 'true'` matches every window; AeroSpace rejects an on-window-detected
+# block with no `if` at all, since an implicit match-everything is error prone.
 [[on-window-detected]]
+if = 'true'
 run = 'layout floating'
 
 # cmd+ctrl is the only modifier family free on this machine: herdr owns
