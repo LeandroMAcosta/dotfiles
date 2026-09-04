@@ -48,6 +48,7 @@ brew bundle dump --file=~/Workspace/personal/dotfiles/Brewfile --force
 | `home/dot_config/nvim/` | `~/.config/nvim/` | LazyVim. `omarchy-theme.lua` no-ops unless Omarchy's theme file exists |
 | `home/dot_config/herdr/` | `~/.config/herdr/` | Darwin only. Only config.toml + goto-tab.sh managed; runtime socket untouched |
 | `home/dot_config/ghostty/config.tmpl` | `~/.config/ghostty/config` | Darwin only via ignore on Linux (Omarchy owns it there) |
+| `home/dot_config/aerospace/aerospace.toml` | `~/.config/aerospace/aerospace.toml` | Darwin only. Floating-by-default WM, installed for `focus-monitor` (macOS has no native display-focus shortcut). `cmd+ctrl` family, kept clear of herdr's `ctrl+shift` and `alt` |
 | `home/private_dot_ssh/private_config.tmpl` | `~/.ssh/config` | 1Password agent socket per OS; colima Include darwin-only. chezmoi owns the whole file now (old awk-merge is gone) — local-only hosts belong in the template |
 | `home/dot_claude/` | `~/.claude/` | settings.json templated: osascript vs notify-send hooks, homeDir path |
 | `Brewfile` | N/A | Hashed into the darwin brew script; editing it triggers `brew bundle` on next apply |

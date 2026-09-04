@@ -1,0 +1,44 @@
+# AeroSpace — i3-style window manager for macOS.
+#
+# Installed for exactly one thing macOS cannot do natively: move keyboard focus
+# between physical displays. There is no built-in shortcut for that; cmd+tab is
+# app-scoped and cmd+` is window-scoped, neither is display-aware.
+#
+# Tiling is deliberately OFF. Every window is floating on detection, so macOS
+# keeps arranging windows the way it always has and nothing gets retiled behind
+# your back. Delete the [[on-window-detected]] block to turn this into a real
+# tiling WM.
+
+start-at-login = true
+
+after-login-command = []
+after-startup-command = []
+
+# No gaps: with floating windows they would do nothing anyway, and pinning them
+# to 0 keeps the config honest if tiling is ever enabled.
+[gaps]
+inner.horizontal = 0
+inner.vertical = 0
+outer.left = 0
+outer.bottom = 0
+outer.top = 0
+outer.right = 0
+
+# Float everything. Remove this block to let AeroSpace tile.
+[[on-window-detected]]
+run = 'layout floating'
+
+# cmd+ctrl is the only modifier family free on this machine: herdr owns
+# ctrl+shift (tabs, spaces, splits) and alt (i3 chords), and Ghostty/iTerm2
+# claim plain cmd. A WM binding is global and fires before the terminal sees
+# the key, so overlapping either herdr family would break it inside every pane.
+[mode.main.binding]
+cmd-ctrl-left = 'focus-monitor left'
+cmd-ctrl-right = 'focus-monitor right'
+cmd-ctrl-h = 'focus-monitor left'
+cmd-ctrl-l = 'focus-monitor right'
+cmd-ctrl-tab = 'focus-monitor next'
+
+# Send the focused window to the neighbouring display and follow it there.
+cmd-ctrl-shift-left = 'move-node-to-monitor left --focus-follows-window'
+cmd-ctrl-shift-right = 'move-node-to-monitor right --focus-follows-window'
