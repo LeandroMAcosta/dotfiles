@@ -1,6 +1,3 @@
-# Taps
-tap "nikitabobko/tap"   # aerospace
-
 # Core
 brew "chezmoi"
 brew "git"
@@ -33,7 +30,7 @@ cask "iterm2"
 cask "claude"
 cask "logi-options+"
 cask "alt-tab"
-cask "aerospace"
+cask "hammerspoon"
 cask "obsidian"
 cask "1password"
 cask "1password-cli"
